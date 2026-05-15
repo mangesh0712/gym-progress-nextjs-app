@@ -1,7 +1,9 @@
 # Gym Progress Tracker — Plan
 
 ## Context
-Personal gym tracking app for daily use. The app allows a single user to log gym sessions based on a customizable workout split, select exercises (with images) per muscle group, and track sets/reps per exercise. Progress is visualized over time per exercise.
+Personal gym tracking app for daily use **at the gym on mobile**. The app allows a single user to log gym sessions based on a customizable workout split, select exercises (with images) per muscle group, and track sets/reps per exercise. Progress is visualized over time per exercise.
+
+**⚠️ CRITICAL REQUIREMENT:** All UI must be **fully responsive and mobile-optimized**. This app will be used on smartphones during gym sessions, so mobile UX is paramount. Test on actual mobile devices.
 
 ---
 

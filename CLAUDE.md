@@ -9,6 +9,14 @@ A full-stack gym tracking application allowing users to log workouts based on cu
 **Scope**: Personal gym tracking (single user daily use)  
 **Status**: In development — Phase 1 (Project Setup)
 
+## 📱 IMPORTANT: Mobile-First Responsive Design
+**All UI components MUST be fully responsive and mobile-optimized.** The app will be primarily used on mobile at the gym.
+- Use Tailwind breakpoints: `sm:`, `md:`, `lg:`, `xl:` for responsive layouts
+- Test on mobile devices (iPhone/Android) before marking features complete
+- DaisyUI components are mobile-friendly by default — leverage them
+- Ensure touch-friendly buttons/inputs (min 44px height for mobile)
+- Optimize images and fonts for mobile performance
+
 ---
 
 ## 🏗️ Tech Stack
