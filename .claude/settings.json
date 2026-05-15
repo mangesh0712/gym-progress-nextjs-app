@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "defaultMode": "auto",
+    "allow": [
+      "Bash(git *)",
+      "Bash(sed *)",
+      "Bash(cd *)"
+    ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat | grep -qi 'please make a commit' && (cd /Users/mangesh/Desktop/agentic/portfolio && sed -i '' \"s/\\*\\*Last Updated:\\*\\*.*/\\*\\*Last Updated:\\*\\* $(date '+%Y-%m-%d | %I:%M %p')/\" commit.md && git add commit.md && git commit -m 'Daily update' && git push origin main) || true",
+            "statusMessage": "Updating GitHub activity..."
+          }
+        ]
+      }
+    ]
+  }
+}
