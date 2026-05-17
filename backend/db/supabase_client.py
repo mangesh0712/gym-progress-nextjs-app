@@ -258,6 +258,117 @@ class SupabaseDB:
             logger.error(f"Error fetching progress for exercise {exercise_id}: {str(e)}")
             raise
 
+    def store_otp(self, phone: str, code: str) -> Dict[str, Any]:
+        """
+        Store OTP for phone verification.
+
+        Args:
+            phone: Phone number in E.164 format (e.g., +919876543210)
+            code: 6-digit OTP code
+
+        Returns:
+            Created OTP record
+        """
+        try:
+            from datetime import datetime, timedelta
+            now = datetime.utcnow()
+            expires_at = now + timedelta(minutes=10)
+
+            response = (
+                self.client.table("otp_requests")
+                .insert({
+                    "phone": phone,
+                    "code": code,
+                    "created_at": now.isoformat(),
+                    "expires_at": expires_at.isoformat(),
+                    "verified": False,
+                })
+                .execute()
+            )
+            return response.data[0]
+        except Exception as e:
+            logger.error(f"Error storing OTP for phone {phone}: {str(e)}")
+            raise
+
+    def verify_otp(self, phone: str, code: str) -> Optional[Dict[str, Any]]:
+        """
+        Verify OTP code for a phone number.
+
+        Args:
+            phone: Phone number in E.164 format
+            code: 6-digit OTP code
+
+        Returns:
+            OTP record if valid and not expired, None otherwise
+        """
+        try:
+            from datetime import datetime
+            response = (
+                self.client.table("otp_requests")
+                .select("*")
+                .eq("phone", phone)
+                .eq("code", code)
+                .eq("verified", False)
+                .order("created_at", desc=True)
+                .limit(1)
+                .execute()
+            )
+
+            if not response.data:
+                return None
+
+            otp_record = response.data[0]
+            expires_at = datetime.fromisoformat(otp_record["expires_at"].replace("Z", "+00:00"))
+
+            if datetime.utcnow() > expires_at:
+                return None
+
+            # Mark as verified
+            self.client.table("otp_requests").update({"verified": True}).eq("id", otp_record["id"]).execute()
+
+            return otp_record
+        except Exception as e:
+            logger.error(f"Error verifying OTP for phone {phone}: {str(e)}")
+            raise
+
+    def get_or_create_user(self, phone: str, user_id: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Get or create a user by phone number.
+
+        Args:
+            phone: Phone number in E.164 format
+            user_id: Optional user ID from Supabase auth
+
+        Returns:
+            User record
+        """
+        try:
+            # Try to find existing user
+            response = (
+                self.client.table("users")
+                .select("*")
+                .eq("phone", phone)
+                .execute()
+            )
+
+            if response.data:
+                return response.data[0]
+
+            # Create new user
+            new_user = {
+                "phone": phone,
+                "auth_id": user_id,
+            }
+            response = (
+                self.client.table("users")
+                .insert(new_user)
+                .execute()
+            )
+            return response.data[0]
+        except Exception as e:
+            logger.error(f"Error getting or creating user for phone {phone}: {str(e)}")
+            raise
+
 
 # Initialize Supabase client on module load
 def get_db() -> SupabaseDB:

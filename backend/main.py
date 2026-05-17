@@ -6,6 +6,13 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import logging
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Import routers
+from routers import auth
 
 # Configure logging
 logging.basicConfig(
@@ -20,6 +27,9 @@ app = FastAPI(
     description="API for tracking gym workouts and progress",
     version="1.0.0",
 )
+
+# Include routers
+app.include_router(auth.router)
 
 # Configure CORS
 allowed_origins = [

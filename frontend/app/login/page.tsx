@@ -10,21 +10,25 @@ export default function LoginPage() {
   const router = useRouter();
   const [step, setStep] = useState<'input' | 'otp'>('input');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const setSession = useAuthStore((state) => state.setSession);
   const setPhone_store = useAuthStore((state) => state.setPhone);
 
   const handleSendOtp = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
+    setMessage('');
     setLoading(true);
 
     try {
       const fullPhone = `+91${phone}`;
-      await sendOtp(fullPhone);
+      const responseMessage = await sendOtp(fullPhone, email);
       setPhone_store(fullPhone);
+      setMessage(responseMessage);
       setStep('otp');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send OTP');
@@ -40,7 +44,7 @@ export default function LoginPage() {
 
     try {
       const fullPhone = `+91${phone}`;
-      const sessionData = await verifyOtp(fullPhone, otp);
+      const sessionData = await verifyOtp(fullPhone, email, otp);
       setSession(sessionData);
       router.push('/onboarding');
     } catch (err) {
@@ -100,6 +104,20 @@ export default function LoginPage() {
                 </div>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  placeholder="e.g. you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  required
+                />
+              </div>
+
               {error && (
                 <div className="bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg p-3">
                   <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
@@ -108,7 +126,7 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                disabled={loading || phone.length !== 10}
+                disabled={loading || phone.length !== 10 || !email}
                 className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
               >
                 {loading ? (
@@ -131,6 +149,12 @@ export default function LoginPage() {
                   Enter the 6-digit code sent to +91 {phone}
                 </p>
               </div>
+
+              {message && (
+                <div className="bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 rounded-lg p-3">
+                  <p className="text-sm text-blue-700 dark:text-blue-400">{message}</p>
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
