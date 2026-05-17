@@ -6,9 +6,9 @@ const protectedRoutes = ['/dashboard', '/onboarding'];
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Get session from cookies (set by Supabase)
-  const sessionCookie = request.cookies.get('sb-session');
-  const isAuthenticated = !!sessionCookie?.value;
+  // Check for custom JWT token in cookies (set after OTP verification)
+  const token = request.cookies.get('access_token')?.value;
+  const isAuthenticated = !!token;
 
   // Allow public routes
   if (publicRoutes.includes(pathname)) {

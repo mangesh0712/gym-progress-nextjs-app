@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
+import { logoutApi } from '@/lib/supabase';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 
 export default function DashboardPage() {
@@ -10,14 +12,28 @@ export default function DashboardPage() {
   const session = useAuthStore((state) => state.session);
   const logout = useAuthStore((state) => state.logout);
 
-  if (!isAuthenticated) {
-    router.push('/login');
-    return null;
-  }
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, router]);
 
   const handleLogout = async () => {
-    logout();
-    router.push('/login');
+    try {
+      // Call logout API to blacklist the token
+      if (session?.access_token) {
+        await logoutApi(session.access_token);
+      }
+    } catch (error) {
+      console.error('Logout API call failed:', error);
+      // Continue with client-side logout even if API fails
+    } finally {
+      // Clear client-side state regardless of API response
+      logout();
+      // Clear the access_token cookie
+      document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+      router.push('/login');
+    }
   };
 
   return (

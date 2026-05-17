@@ -9,14 +9,12 @@ import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 export default function LoginPage() {
   const router = useRouter();
   const [step, setStep] = useState<'input' | 'otp'>('input');
-  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const setSession = useAuthStore((state) => state.setSession);
-  const setPhone_store = useAuthStore((state) => state.setPhone);
 
   const handleSendOtp = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,9 +23,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const fullPhone = `+91${phone}`;
-      const responseMessage = await sendOtp(fullPhone, email);
-      setPhone_store(fullPhone);
+      const responseMessage = await sendOtp(email);
       setMessage(responseMessage);
       setStep('otp');
     } catch (err) {
@@ -43,10 +39,16 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const fullPhone = `+91${phone}`;
-      const sessionData = await verifyOtp(fullPhone, email, otp);
+      const sessionData = await verifyOtp(email, otp);
       setSession(sessionData);
-      router.push('/onboarding');
+
+      // Set access token as cookie for middleware
+      document.cookie = `access_token=${sessionData.access_token}; path=/; secure; samesite=lax`;
+
+      // Small delay to ensure cookie is set before redirect
+      setTimeout(() => {
+        router.push('/onboarding');
+      }, 100);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to verify OTP');
     } finally {
@@ -84,33 +86,11 @@ export default function LoginPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                  Phone Number
-                </label>
-                <div className="flex gap-2">
-                  <div className="flex items-center px-4 bg-gray-200 dark:bg-gray-700 rounded-lg min-w-fit">
-                    <span className="font-medium text-gray-900 dark:text-white">+91</span>
-                  </div>
-                  <input
-                    type="tel"
-                    placeholder="e.g. 9876543210"
-                    value={phone}
-                    onChange={(e) =>
-                      setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))
-                    }
-                    className="flex-1 px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                    maxLength={10}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
                   Email Address
                 </label>
                 <input
                   type="email"
-                  placeholder="e.g. you@example.com"
+                  placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
@@ -126,7 +106,7 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                disabled={loading || phone.length !== 10 || !email}
+                disabled={loading || !email}
                 className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
               >
                 {loading ? (
@@ -138,6 +118,13 @@ export default function LoginPage() {
                   'Send OTP'
                 )}
               </button>
+
+              <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+                Don't have an account?{' '}
+                <a href="/signup" className="text-blue-600 dark:text-blue-400 hover:underline">
+                  Sign up
+                </a>
+              </p>
             </form>
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-6">
@@ -146,7 +133,7 @@ export default function LoginPage() {
                   Verify OTP
                 </h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Enter the 6-digit code sent to +91 {phone}
+                  Enter the 6-digit code sent to {email}
                 </p>
               </div>
 
@@ -203,7 +190,7 @@ export default function LoginPage() {
                 }}
                 className="w-full text-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium py-2 transition-colors"
               >
-                Change Phone Number
+                Change Email
               </button>
             </form>
           )}

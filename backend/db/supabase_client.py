@@ -331,12 +331,12 @@ class SupabaseDB:
             logger.error(f"Error verifying OTP for phone {phone}: {str(e)}")
             raise
 
-    def get_or_create_user(self, phone: str, user_id: Optional[str] = None) -> Dict[str, Any]:
+    def get_or_create_user(self, email: str, user_id: Optional[str] = None) -> Dict[str, Any]:
         """
-        Get or create a user by phone number.
+        Get or create a user by email.
 
         Args:
-            phone: Phone number in E.164 format
+            email: Email address
             user_id: Optional user ID from Supabase auth
 
         Returns:
@@ -347,7 +347,7 @@ class SupabaseDB:
             response = (
                 self.client.table("users")
                 .select("*")
-                .eq("phone", phone)
+                .eq("email", email)
                 .execute()
             )
 
@@ -356,7 +356,7 @@ class SupabaseDB:
 
             # Create new user
             new_user = {
-                "phone": phone,
+                "email": email,
                 "auth_id": user_id,
             }
             response = (
@@ -366,7 +366,119 @@ class SupabaseDB:
             )
             return response.data[0]
         except Exception as e:
-            logger.error(f"Error getting or creating user for phone {phone}: {str(e)}")
+            logger.error(f"Error getting or creating user for email {email}: {str(e)}")
+            raise
+
+    def create_user(
+        self,
+        name: str,
+        age: int,
+        weight: float,
+        email: str,
+        phone: str,
+    ) -> Dict[str, Any]:
+        """
+        Create a new user with all details.
+
+        Args:
+            name: User's name
+            age: User's age
+            weight: User's weight
+            email: User's email (unique)
+            phone: User's phone (unique)
+
+        Returns:
+            Created user record
+        """
+        try:
+            new_user = {
+                "name": name,
+                "age": age,
+                "weight": weight,
+                "email": email,
+                "phone": phone,
+            }
+            response = (
+                self.client.table("users")
+                .insert(new_user)
+                .execute()
+            )
+            return response.data[0]
+        except Exception as e:
+            logger.error(f"Error creating user {email}: {str(e)}")
+            raise
+
+    def user_exists(self, email: str) -> bool:
+        """
+        Check if user with email already exists.
+
+        Args:
+            email: User's email
+
+        Returns:
+            True if user exists, False otherwise
+        """
+        try:
+            response = (
+                self.client.table("users")
+                .select("id")
+                .eq("email", email)
+                .limit(1)
+                .execute()
+            )
+            return len(response.data) > 0
+        except Exception as e:
+            logger.error(f"Error checking if user exists: {str(e)}")
+            raise
+
+    def blacklist_token(self, jti: str, user_id: str, expires_at) -> Dict[str, Any]:
+        """
+        Add a token to the blacklist (revoke it).
+
+        Args:
+            jti: JWT ID (unique token identifier)
+            user_id: User ID who owns the token
+            expires_at: When the token expires (datetime)
+
+        Returns:
+            Created blacklist record
+        """
+        try:
+            response = (
+                self.client.table("token_blacklist")
+                .insert({
+                    "token_jti": jti,
+                    "user_id": user_id,
+                    "expires_at": expires_at.isoformat(),
+                })
+                .execute()
+            )
+            return response.data[0] if response.data else {}
+        except Exception as e:
+            logger.error(f"Error blacklisting token {jti}: {str(e)}")
+            raise
+
+    def is_token_blacklisted(self, jti: str) -> bool:
+        """
+        Check if a token has been blacklisted (revoked).
+
+        Args:
+            jti: JWT ID to check
+
+        Returns:
+            True if token is blacklisted, False otherwise
+        """
+        try:
+            response = (
+                self.client.table("token_blacklist")
+                .select("id")
+                .eq("token_jti", jti)
+                .limit(1)
+                .execute()
+            )
+            return len(response.data) > 0
+        except Exception as e:
+            logger.error(f"Error checking if token {jti} is blacklisted: {str(e)}")
             raise
 
 

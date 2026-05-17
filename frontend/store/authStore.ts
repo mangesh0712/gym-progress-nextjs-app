@@ -58,15 +58,35 @@ export const useAuthStore = create<AuthState>()(
           state.isLoading = true;
         });
         try {
-          const sessionData = await getSession();
-          if (sessionData) {
+          // Check if access_token cookie exists (client-side check)
+          const cookieValue = document.cookie
+            .split('; ')
+            .find((row) => row.startsWith('access_token='))
+            ?.split('=')[1];
+
+          if (cookieValue) {
+            // Cookie exists, try to load session from localStorage or Supabase
+            const sessionData = await getSession();
+            if (sessionData) {
+              set((state) => {
+                state.session = sessionData;
+                state.isAuthenticated = true;
+              });
+            }
+          } else {
+            // No cookie, clear any persisted session
             set((state) => {
-              state.session = sessionData;
-              state.isAuthenticated = true;
+              state.session = null;
+              state.isAuthenticated = false;
             });
           }
         } catch (error) {
           console.error('Failed to initialize auth:', error);
+          // On error, clear auth state to be safe
+          set((state) => {
+            state.session = null;
+            state.isAuthenticated = false;
+          });
         } finally {
           set((state) => {
             state.isLoading = false;

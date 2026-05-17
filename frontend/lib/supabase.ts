@@ -7,11 +7,58 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-export async function sendOtp(phone: string, email: string): Promise<string> {
+export interface SignupData {
+  name: string;
+  age: number;
+  weight: number;
+  email: string;
+  phone: string;
+}
+
+export async function signup(data: SignupData): Promise<string> {
+  const response = await fetch(`${API_URL}/auth/signup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || 'Failed to sign up');
+  }
+
+  const result = await response.json();
+  return result.message;
+}
+
+export async function verifySignup(
+  data: SignupData,
+  code: string
+): Promise<{ access_token: string; refresh_token: string; user_id: string }> {
+  const response = await fetch(`${API_URL}/auth/verify-signup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...data, otp_code: code }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || 'Failed to verify OTP');
+  }
+
+  const result = await response.json();
+  return {
+    access_token: result.access_token,
+    refresh_token: result.refresh_token,
+    user_id: result.user_id,
+  };
+}
+
+export async function sendOtp(email: string): Promise<string> {
   const response = await fetch(`${API_URL}/auth/send-otp`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ phone, email }),
+    body: JSON.stringify({ email }),
   });
 
   if (!response.ok) {
@@ -24,14 +71,13 @@ export async function sendOtp(phone: string, email: string): Promise<string> {
 }
 
 export async function verifyOtp(
-  phone: string,
   email: string,
   code: string
 ): Promise<{ access_token: string; refresh_token: string; user_id: string }> {
   const response = await fetch(`${API_URL}/auth/verify-otp`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ phone, email, code }),
+    body: JSON.stringify({ email, code }),
   });
 
   if (!response.ok) {
@@ -76,4 +122,19 @@ export function onAuthStateChange(
     callback(!!session, session?.user?.id);
   });
   return subscription;
+}
+
+export async function logoutApi(accessToken: string): Promise<void> {
+  const response = await fetch(`${API_URL}/auth/logout`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || 'Failed to logout');
+  }
 }

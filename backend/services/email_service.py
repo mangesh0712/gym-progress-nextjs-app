@@ -23,13 +23,13 @@ class EmailService:
         if not all([self.service_id, self.template_id, self.public_key, self.private_key]):
             logger.warning("EmailJS credentials not fully configured")
 
-    async def send_otp_email(self, email: str, phone: str, otp_code: str) -> bool:
+    async def send_otp_email(self, email: str, phone: str = "", otp_code: str = "") -> bool:
         """
         Send OTP via email.
 
         Args:
             email: Recipient email address
-            phone: Phone number for reference
+            phone: Phone number for reference (optional)
             otp_code: 6-digit OTP code
 
         Returns:
@@ -44,7 +44,7 @@ class EmailService:
                 "template_params": {
                     "to_email": email,
                     "otp_code": otp_code,
-                    "phone": phone,
+                    "phone": phone or "N/A",
                     "expires_in": "10 minutes",
                 },
             }
