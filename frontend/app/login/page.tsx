@@ -15,7 +15,7 @@ export default function LoginPage() {
   const setSession = useAuthStore((state) => state.setSession);
   const setPhoneStore = useAuthStore((state) => state.setPhone);
 
-  const handleSendOtp = async (e: React.FormEvent) => {
+  const handleSendOtp = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -34,7 +34,7 @@ export default function LoginPage() {
     }
   };
 
-  const handleVerifyOtp = async (e: React.FormEvent) => {
+  const handleVerifyOtp = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -54,27 +54,46 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-base-200 flex items-center justify-center p-4">
-      <div className="card bg-base-100 shadow-xl w-full max-w-md">
-        <div className="card-body">
-          <h1 className="card-title text-2xl font-bold mb-6">Gym Tracker</h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Logo/Branding */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+            💪 Gym Tracker
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            Track your progress, achieve your goals
+          </p>
+        </div>
 
+        {/* Card */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
           {step === 'phone' ? (
-            <form onSubmit={handleSendOtp} className="space-y-4">
+            <form onSubmit={handleSendOtp} className="space-y-6">
               <div>
-                <label className="label">
-                  <span className="label-text font-medium">Phone Number</span>
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
+                  Log in to your account
+                </h2>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Phone Number
                 </label>
                 <div className="flex gap-2">
-                  <div className="flex items-center px-3 bg-base-200 rounded-lg border border-base-300">
-                    <span className="font-medium">+91</span>
+                  <div className="flex items-center px-4 bg-gray-100 dark:bg-gray-700 rounded-lg min-w-fit">
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                      +91
+                    </span>
                   </div>
                   <input
                     type="tel"
-                    placeholder="10-digit number"
+                    placeholder="e.g. 9876543210"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                    className="input input-bordered w-full"
+                    onChange={(e) =>
+                      setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))
+                    }
+                    className="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                     maxLength={10}
                     required
                   />
@@ -82,19 +101,21 @@ export default function LoginPage() {
               </div>
 
               {error && (
-                <div className="alert alert-error">
-                  <span>{error}</span>
+                <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                  <p className="text-sm text-red-700 dark:text-red-400">
+                    {error}
+                  </p>
                 </div>
               )}
 
               <button
                 type="submit"
                 disabled={loading || phone.length !== 10}
-                className="btn btn-primary w-full"
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
-                    <span className="loading loading-spinner"></span>
+                    <span className="loading loading-spinner loading-sm"></span>
                     Sending...
                   </>
                 ) : (
@@ -103,38 +124,49 @@ export default function LoginPage() {
               </button>
             </form>
           ) : (
-            <form onSubmit={handleVerifyOtp} className="space-y-4">
+            <form onSubmit={handleVerifyOtp} className="space-y-6">
               <div>
-                <label className="label">
-                  <span className="label-text font-medium">
-                    Enter OTP sent to +91 {phone}
-                  </span>
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+                  Verify OTP
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Enter the code sent to +91 {phone}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  One-Time Password
                 </label>
                 <input
                   type="text"
-                  placeholder="6-digit OTP"
+                  placeholder="e.g. 123456"
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className="input input-bordered w-full text-center text-2xl tracking-widest"
+                  onChange={(e) =>
+                    setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))
+                  }
+                  className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-lg tracking-widest transition-all"
                   maxLength={6}
                   required
                 />
               </div>
 
               {error && (
-                <div className="alert alert-error">
-                  <span>{error}</span>
+                <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                  <p className="text-sm text-red-700 dark:text-red-400">
+                    {error}
+                  </p>
                 </div>
               )}
 
               <button
                 type="submit"
                 disabled={loading || otp.length !== 6}
-                className="btn btn-primary w-full"
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
-                    <span className="loading loading-spinner"></span>
+                    <span className="loading loading-spinner loading-sm"></span>
                     Verifying...
                   </>
                 ) : (
@@ -149,7 +181,7 @@ export default function LoginPage() {
                   setOtp('');
                   setError('');
                 }}
-                className="btn btn-ghost w-full"
+                className="w-full text-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium py-2 transition-colors"
               >
                 Change Number
               </button>
