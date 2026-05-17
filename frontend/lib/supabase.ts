@@ -5,21 +5,21 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-export async function sendOtp(email: string): Promise<void> {
+export async function sendOtp(phone: string): Promise<void> {
   const { error } = await supabase.auth.signInWithOtp({
-    email,
+    phone,
   });
   if (error) throw error;
 }
 
 export async function verifyOtp(
-  email: string,
+  phone: string,
   token: string
 ): Promise<{ access_token: string; refresh_token: string; user_id: string }> {
   const { data, error } = await supabase.auth.verifyOtp({
-    email,
+    phone,
     token,
-    type: 'email',
+    type: 'sms',
   });
   if (error) throw error;
   if (!data.session) throw new Error('No session returned from OTP verification');

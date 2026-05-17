@@ -5,6 +5,7 @@ const config: Config = {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -18,7 +19,7 @@ const config: Config = {
   },
   plugins: [require('daisyui')],
   daisyui: {
-    themes: ['light', 'dark'],
+    themes: false,
   },
 };
 
