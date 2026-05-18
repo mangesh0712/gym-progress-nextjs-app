@@ -116,7 +116,13 @@ export default function WorkoutPage() {
             >
               ←
             </button>
-            <h1 className="text-2xl font-bold text-primary">💪 Gym Tracker</h1>
+            <button
+              onClick={handleGoBack}
+              className="text-2xl font-bold text-primary hover:text-hm-dark cursor-pointer transition-colors"
+              title="Go back to dashboard"
+            >
+              💪 Gym Tracker
+            </button>
           </div>
           <ThemeSwitcher />
         </div>
