@@ -1,6 +1,6 @@
 # Fly.io configuration for Gym Tracker API
 app = "gym-tracker-api"
-primary_region = "sin"
+primary_region = "bom"
 
 [build]
 dockerfile = "Dockerfile"
