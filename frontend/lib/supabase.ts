@@ -55,8 +55,6 @@ export async function verifySignup(
 }
 
 export async function sendOtp(email: string): Promise<string> {
-  console.log('Sending OTP to:', email);
-
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
@@ -70,16 +68,12 @@ export async function sendOtp(email: string): Promise<string> {
 
     clearTimeout(timeoutId);
 
-    console.log('Send OTP response status:', response.status);
-
     if (!response.ok) {
       const error = await response.json();
-      console.error('Send OTP error:', error);
       throw new Error(error.detail || `Failed to send OTP (${response.status})`);
     }
 
     const data = await response.json();
-    console.log('OTP sent successfully');
     return data.message;
   } catch (err) {
     clearTimeout(timeoutId);
@@ -87,7 +81,6 @@ export async function sendOtp(email: string): Promise<string> {
       if (err.name === 'AbortError') {
         throw new Error('Request timed out. Please try again.');
       }
-      console.error('Send OTP error:', err.message);
       throw err;
     }
     throw new Error('Failed to send OTP');
@@ -203,9 +196,6 @@ export async function saveWorkoutSession(
 ): Promise<{ id: string; message: string; exercises_count: number }> {
   if (!accessToken) throw new Error('No access token found');
 
-  console.log('Saving workout with token:', accessToken.substring(0, 20) + '...');
-  console.log('API URL:', `${API_URL}/workouts/sessions`);
-
   const response = await fetch(`${API_URL}/workouts/sessions`, {
     method: 'POST',
     headers: {
@@ -221,19 +211,14 @@ export async function saveWorkoutSession(
     }),
   });
 
-  console.log('Response status:', response.status);
-  console.log('Response url:', response.url);
-
   if (!response.ok) {
     let errorMessage = `HTTP ${response.status}`;
     try {
       const error = await response.json();
       errorMessage = error.detail || `HTTP ${response.status}`;
-      console.error('Save workout error response:', error);
     } catch {
       errorMessage = `HTTP ${response.status} ${response.statusText}`;
     }
-    console.error('Throwing error:', errorMessage);
     throw new Error(errorMessage);
   }
 

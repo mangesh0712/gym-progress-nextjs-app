@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import logging
+import os
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -32,16 +33,15 @@ app = FastAPI(
 app.include_router(auth.router)
 app.include_router(workouts.router)
 
-# Configure CORS
-allowed_origins = [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "https://yourdomain.com",
-]
+# Configure CORS - read from environment for production flexibility
+cors_origins = os.getenv(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:3000,http://localhost:3001"
+).split(",")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
