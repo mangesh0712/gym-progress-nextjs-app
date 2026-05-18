@@ -55,19 +55,43 @@ export async function verifySignup(
 }
 
 export async function sendOtp(email: string): Promise<string> {
-  const response = await fetch(`${API_URL}/auth/send-otp`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email }),
-  });
+  console.log('Sending OTP to:', email);
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || 'Failed to send OTP');
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+  try {
+    const response = await fetch(`${API_URL}/auth/send-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    console.log('Send OTP response status:', response.status);
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('Send OTP error:', error);
+      throw new Error(error.detail || `Failed to send OTP (${response.status})`);
+    }
+
+    const data = await response.json();
+    console.log('OTP sent successfully');
+    return data.message;
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err instanceof Error) {
+      if (err.name === 'AbortError') {
+        throw new Error('Request timed out. Please try again.');
+      }
+      console.error('Send OTP error:', err.message);
+      throw err;
+    }
+    throw new Error('Failed to send OTP');
   }
-
-  const data = await response.json();
-  return data.message;
 }
 
 export async function verifyOtp(
@@ -137,4 +161,76 @@ export async function logoutApi(accessToken: string): Promise<void> {
     const error = await response.json();
     throw new Error(error.detail || 'Failed to logout');
   }
+}
+
+export function decodeJWT(token: string): { exp?: number; [key: string]: any } {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) throw new Error('Invalid token');
+    const decoded = JSON.parse(atob(parts[1]));
+    return decoded;
+  } catch {
+    return {};
+  }
+}
+
+export function isTokenExpired(token: string): boolean {
+  const decoded = decodeJWT(token);
+  if (!decoded.exp) return false;
+  const currentTime = Math.floor(Date.now() / 1000);
+  return decoded.exp < currentTime;
+}
+
+export async function refreshAccessToken(refreshToken: string): Promise<string> {
+  const response = await fetch(`${API_URL}/auth/refresh`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refresh_token: refreshToken }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to refresh token');
+  }
+
+  const data = await response.json();
+  return data.access_token;
+}
+
+export async function saveWorkoutSession(
+  muscleGroup: string,
+  exercises: Array<{ exerciseName: string; sets: Array<{ kg: string; reps: string }> }>,
+  accessToken: string
+): Promise<{ id: string; message: string; exercises_count: number }> {
+  if (!accessToken) throw new Error('No access token found');
+
+  console.log('Saving workout with token:', accessToken.substring(0, 20) + '...');
+  console.log('API URL:', `${API_URL}/workouts/sessions`);
+
+  const response = await fetch(`${API_URL}/workouts/sessions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({
+      muscle_group: muscleGroup,
+      exercises: exercises,
+    }),
+  });
+
+  console.log('Response status:', response.status);
+  console.log('Response url:', response.url);
+
+  if (!response.ok) {
+    let errorMessage = `HTTP ${response.status}`;
+    try {
+      const error = await response.json();
+      errorMessage = error.detail || errorMessage;
+    } catch {
+      errorMessage = `${response.status} ${response.statusText}`;
+    }
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
 }

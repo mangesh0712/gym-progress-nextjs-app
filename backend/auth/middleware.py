@@ -1,6 +1,6 @@
 import jwt
 from fastapi import HTTPException, Depends, status
-from fastapi.security import HTTPBearer, HTTPAuthCredentials
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import os
 from typing import Optional
 from db.supabase_client import get_db
@@ -9,7 +9,7 @@ security = HTTPBearer()
 
 
 async def get_current_user_id(
-    credentials: HTTPAuthCredentials = Depends(security),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
     db = Depends(get_db),
 ) -> str:
     """

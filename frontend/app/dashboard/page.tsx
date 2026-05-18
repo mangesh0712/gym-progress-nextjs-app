@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { logoutApi } from '@/lib/supabase';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { ConfirmationModal } from '@/components/ConfirmationModal';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function DashboardPage() {
   const session = useAuthStore((state) => state.session);
   const logout = useAuthStore((state) => state.logout);
   const [showMuscleGroups, setShowMuscleGroups] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -25,7 +27,11 @@ export default function DashboardPage() {
     router.push(`/workout/${group.toLowerCase()}`);
   };
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = async () => {
     try {
       // Call logout API to blacklist the token
       if (session?.access_token) {
@@ -35,12 +41,29 @@ export default function DashboardPage() {
       console.error('Logout API call failed:', error);
       // Continue with client-side logout even if API fails
     } finally {
-      // Clear client-side state regardless of API response
+      // Clear client-side state FIRST
       logout();
+
+      // Clear localStorage completely
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('gym-auth');
+      }
+
       // Clear the access_token cookie
+      document.cookie = 'access_token=; path=/; max-age=0;';
       document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
-      router.push('/login');
+
+      setShowLogoutConfirm(false);
+
+      // Redirect after a small delay to ensure cookies/localStorage are cleared
+      setTimeout(() => {
+        router.push('/login');
+      }, 100);
     }
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutConfirm(false);
   };
 
   return (
@@ -108,6 +131,18 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <ConfirmationModal
+          title="Logout"
+          message="Are you sure you want to logout? You will need to login again to access your workouts."
+          onConfirm={confirmLogout}
+          onCancel={cancelLogout}
+          confirmText="Logout"
+          cancelText="Cancel"
+        />
+      )}
     </div>
   );
 }

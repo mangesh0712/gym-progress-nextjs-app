@@ -47,7 +47,7 @@ export default function LoginPage() {
 
       // Small delay to ensure cookie is set before redirect
       setTimeout(() => {
-        router.push('/onboarding');
+        router.push('/dashboard');
       }, 100);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to verify OTP');

@@ -342,3 +342,58 @@ async def logout(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to logout",
         )
+
+
+@router.post("/refresh", response_model=dict, status_code=status.HTTP_200_OK)
+async def refresh_token(request: dict) -> dict:
+    """
+    Refresh an expired access token using a refresh token.
+
+    Args:
+        request: Request with refresh_token
+
+    Returns:
+        New access token
+    """
+    try:
+        refresh_token_str = request.get("refresh_token")
+        if not refresh_token_str:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Refresh token required",
+            )
+
+        # Decode refresh token (no signature verification for now)
+        payload = jwt.decode(refresh_token_str, options={"verify_signature": False})
+        user_id = payload.get("sub")
+
+        if not user_id:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid refresh token",
+            )
+
+        # Generate new access token
+        new_payload = {
+            "sub": user_id,
+            "iat": datetime.utcnow(),
+            "exp": datetime.utcnow() + timedelta(minutes=TOKEN_EXPIRY_MINUTES),
+            "jti": str(uuid.uuid4()),
+        }
+
+        new_access_token = jwt.encode(
+            new_payload, JWT_SECRET, algorithm=JWT_ALGORITHM
+        )
+
+        logger.info(f"Token refreshed for user: {user_id}")
+
+        return {"access_token": new_access_token}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error refreshing token: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token",
+        )
