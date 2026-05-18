@@ -192,12 +192,13 @@ export default function SignupPage() {
                     name="phone"
                     placeholder="9876543210"
                     value={formData.phone}
-                    onChange={(e) =>
-                      handleInputChange({
-                        ...e,
-                        target: { ...e.target, value: e.target.value.replace(/\D/g, '').slice(0, 10) },
-                      })
-                    }
+                    onChange={(e) => {
+                      const filtered = e.target.value.replace(/\D/g, '').slice(0, 10);
+                      setFormData((prev) => ({
+                        ...prev,
+                        phone: filtered,
+                      }));
+                    }}
                     className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                     maxLength={10}
                     required

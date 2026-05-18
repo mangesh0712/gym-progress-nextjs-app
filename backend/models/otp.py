@@ -11,6 +11,15 @@ class SignupRequest(BaseModel):
     phone: str = Field(..., min_length=10, max_length=15)
 
 
+class SignupVerifyRequest(BaseModel):
+    name: str = Field(..., min_length=2, max_length=100)
+    age: int = Field(..., ge=13, le=120)
+    weight: float = Field(..., gt=0)
+    email: EmailStr
+    phone: str = Field(..., min_length=10, max_length=15)
+    otp_code: str = Field(..., min_length=6, max_length=6)
+
+
 class OTPRequest(BaseModel):
     email: EmailStr
 

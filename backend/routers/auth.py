@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 import jwt
 import uuid
 
-from models.otp import SignupRequest, OTPRequest, OTPVerify, OTPResponse, AuthResponse
+from models.otp import SignupRequest, SignupVerifyRequest, OTPRequest, OTPVerify, OTPResponse, AuthResponse
 from db.supabase_client import SupabaseDB, get_db
 from services.email_service import get_email_service
 
@@ -90,16 +90,14 @@ async def signup(
 
 @router.post("/verify-signup", response_model=AuthResponse, status_code=status.HTTP_200_OK)
 async def verify_signup(
-    request: SignupRequest,
-    otp_code: str,
+    request: SignupVerifyRequest,
     db: SupabaseDB = Depends(get_db),
 ) -> AuthResponse:
     """
     Verify OTP during signup and create user account.
 
     Args:
-        request: Signup request with user details
-        otp_code: 6-digit OTP code
+        request: Signup request with user details and OTP code
         db: Database client
 
     Returns:
@@ -107,7 +105,7 @@ async def verify_signup(
     """
     try:
         # Verify OTP
-        otp_record = db.verify_otp(request.email, otp_code)
+        otp_record = db.verify_otp(request.email, request.otp_code)
 
         if not otp_record:
             raise HTTPException(

@@ -20,7 +20,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Protect routes
-  if (protectedRoutes.includes(pathname)) {
+  if (protectedRoutes.includes(pathname) || pathname.startsWith('/workout/')) {
     if (!isAuthenticated) {
       return NextResponse.redirect(new URL('/login', request.url));
     }

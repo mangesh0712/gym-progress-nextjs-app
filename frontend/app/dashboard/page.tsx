@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { logoutApi } from '@/lib/supabase';
@@ -11,12 +11,19 @@ export default function DashboardPage() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const session = useAuthStore((state) => state.session);
   const logout = useAuthStore((state) => state.logout);
+  const [showMuscleGroups, setShowMuscleGroups] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/login');
     }
   }, [isAuthenticated, router]);
+
+  const muscleGroups = ['Legs', 'Shoulders', 'Chest', 'Back', 'Biceps', 'Triceps', 'Abs'];
+
+  const handleMuscleGroupClick = (group: string) => {
+    router.push(`/workout/${group.toLowerCase()}`);
+  };
 
   const handleLogout = async () => {
     try {
@@ -37,10 +44,10 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 shadow-md">
-        <div className="max-w-6xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">💪 Gym Tracker</h1>
           <div className="flex items-center gap-4">
             <ThemeSwitcher />
@@ -54,47 +61,46 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="p-4 md:p-8">
-        <div className="max-w-2xl mx-auto">
-          {/* Welcome Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Welcome back! 👋</h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Ready to track your progress today?
-            </p>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Todays Workout</h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                Select a workout split to get started
-              </p>
-              <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all">
-                Start Workout
-              </button>
-            </div>
-
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Your Splits</h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                Manage your workout splits and routines
-              </p>
-              <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all">
-                View Splits
-              </button>
+      {/* Main Content - 70/30 Layout */}
+      <div className="flex-1 p-4 md:p-8">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 h-full">
+          {/* Left side - 70% (3 columns out of 4) */}
+          <div className="lg:col-span-3">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 h-full min-h-96">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Your Progress</h2>
+              <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                <div className="text-center">
+                  <p className="text-lg mb-2">📊 Graphs placeholder</p>
+                  <p className="text-sm">Progress charts and statistics will appear here</p>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Recent Sessions */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Recent Sessions</h2>
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <p className="text-gray-600 dark:text-gray-400">
-                No sessions logged yet. Start your first workout to see them here!
-              </p>
+          {/* Right side - 30% (1 column out of 4) */}
+          <div className="lg:col-span-1">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 h-full flex flex-col">
+              <button
+                onClick={() => setShowMuscleGroups(!showMuscleGroups)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-4 rounded-lg transition-all duration-200 mb-4"
+              >
+                Start Your Workout
+              </button>
+
+              {/* Muscle Group Buttons */}
+              {showMuscleGroups && (
+                <div className="flex flex-col gap-2 flex-1 overflow-y-auto">
+                  {muscleGroups.map((group) => (
+                    <button
+                      key={group}
+                      onClick={() => handleMuscleGroupClick(group)}
+                      className="w-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-medium py-3 px-4 rounded-lg transition-all duration-200"
+                    >
+                      {group}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
