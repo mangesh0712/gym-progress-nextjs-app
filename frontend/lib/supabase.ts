@@ -214,7 +214,10 @@ export async function saveWorkoutSession(
     },
     body: JSON.stringify({
       muscle_group: muscleGroup,
-      exercises: exercises,
+      exercises: exercises.map(ex => ({
+        exercise_name: ex.exerciseName,
+        sets: ex.sets,
+      })),
     }),
   });
 
@@ -225,10 +228,12 @@ export async function saveWorkoutSession(
     let errorMessage = `HTTP ${response.status}`;
     try {
       const error = await response.json();
-      errorMessage = error.detail || errorMessage;
+      errorMessage = error.detail || `HTTP ${response.status}`;
+      console.error('Save workout error response:', error);
     } catch {
-      errorMessage = `${response.status} ${response.statusText}`;
+      errorMessage = `HTTP ${response.status} ${response.statusText}`;
     }
+    console.error('Throwing error:', errorMessage);
     throw new Error(errorMessage);
   }
 

@@ -32,7 +32,9 @@ export default function WorkoutPage() {
   const [saveError, setSaveError] = useState('');
 
   useEffect(() => {
+    console.log('WorkoutPage - isAuthenticated:', isAuthenticated);
     if (!isAuthenticated) {
+      console.log('NOT AUTHENTICATED - REDIRECTING TO LOGIN');
       router.push('/login');
     }
   }, [isAuthenticated, router]);
@@ -96,6 +98,10 @@ export default function WorkoutPage() {
   };
 
   const handleSaveWorkout = async () => {
+    console.log('🎯 handleSaveWorkout CALLED!');
+    console.log('isAuthenticated:', isAuthenticated);
+    console.log('session:', session);
+
     if (loggedExercises.length === 0) {
       setSaveError('No exercises logged');
       return;
@@ -139,6 +145,11 @@ export default function WorkoutPage() {
     setSaveMessage('');
 
     try {
+      console.log('=== SAVE WORKOUT START ===');
+      console.log('Muscle Group:', muscleGroup);
+      console.log('Logged Exercises:', loggedExercises);
+      console.log('Token:', token ? token.substring(0, 30) + '...' : 'NO TOKEN');
+
       // Check if token is expired and refresh if needed
       if (isTokenExpired(token)) {
         console.log('Token expired, refreshing...');
@@ -148,7 +159,9 @@ export default function WorkoutPage() {
         token = await refreshAccessToken(refreshToken);
       }
 
+      console.log('About to call saveWorkoutSession...');
       const result = await saveWorkoutSession(muscleGroup, loggedExercises, token);
+      console.log('Save result:', result);
       setSaveMessage(`✓ Saved ${result.exercises_count} exercises!`);
 
       // Clear local state after successful save
@@ -159,9 +172,10 @@ export default function WorkoutPage() {
       }, 1500);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to save workout';
+      console.error('Save workout error:', errorMessage);
 
-      // If it's a token/auth error, clear session and redirect to login
-      if (errorMessage.includes('token') || errorMessage.includes('refresh') || errorMessage.includes('401')) {
+      // Only logout on actual 401 errors, not on other errors that mention "token"
+      if (errorMessage.includes('HTTP 401')) {
         setSaveError('Session expired. Please login again.');
         const logout = useAuthStore.getState().logout;
         logout();
