@@ -57,7 +57,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
       {/* Theme Switcher */}
       <div className="fixed top-4 right-4">
         <ThemeSwitcher />
@@ -66,26 +66,26 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo/Branding */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-5xl font-bold text-primary mb-2">
             💪 Gym Tracker
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-hm-dark mt-2 font-medium">
             Track your progress, achieve your goals
           </p>
         </div>
 
         {/* Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
+        <div className="bg-hm-light rounded-2xl shadow-lg p-8">
           {step === 'input' ? (
             <form onSubmit={handleSendOtp} className="space-y-6">
               <div>
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
+                <h2 className="text-2xl font-bold text-hm-dark mb-6">
                   Log in to your account
                 </h2>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                <label className="block text-sm font-semibold text-hm-dark mb-2">
                   Email Address
                 </label>
                 <input
@@ -93,21 +93,28 @@ export default function LoginPage() {
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  className="w-full px-4 py-3 bg-white text-hm-dark placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                   required
                 />
               </div>
 
               {error && (
-                <div className="bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg p-3">
-                  <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+                <div className="bg-primary/10 border border-primary rounded-lg p-3">
+                  <p className="text-sm text-primary font-medium">{error}</p>
                 </div>
               )}
 
               <button
                 type="submit"
                 disabled={loading || !email}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+                onMouseEnter={(e) => {
+                  if (!loading && email) e.currentTarget.style.backgroundColor = '#D84545';
+                }}
+                onMouseLeave={(e) => {
+                  if (!loading && email) e.currentTarget.style.backgroundColor = '#C41E3A';
+                }}
+                style={{ backgroundColor: loading || !email ? '#d1d5db' : '#C41E3A' }}
+                className="w-full disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
               >
                 {loading ? (
                   <>
@@ -119,9 +126,9 @@ export default function LoginPage() {
                 )}
               </button>
 
-              <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-center text-sm text-hm-dark">
                 Don't have an account?{' '}
-                <a href="/signup" className="text-blue-600 dark:text-blue-400 hover:underline">
+                <a href="/signup" className="text-primary hover:underline font-semibold">
                   Sign up
                 </a>
               </p>
@@ -129,22 +136,22 @@ export default function LoginPage() {
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-6">
               <div>
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+                <h2 className="text-2xl font-bold text-hm-dark mb-2">
                   Verify OTP
                 </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-700">
                   Enter the 6-digit code sent to {email}
                 </p>
               </div>
 
               {message && (
-                <div className="bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 rounded-lg p-3">
-                  <p className="text-sm text-blue-700 dark:text-blue-400">{message}</p>
+                <div className="bg-green-100/50 border border-green-300 rounded-lg p-3">
+                  <p className="text-sm text-green-700 font-medium">{message}</p>
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                <label className="block text-sm font-semibold text-hm-dark mb-2">
                   One-Time Password
                 </label>
                 <input
@@ -154,22 +161,29 @@ export default function LoginPage() {
                   onChange={(e) =>
                     setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))
                   }
-                  className="w-full px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-lg tracking-widest transition-all"
+                  className="w-full px-4 py-3 bg-white text-hm-dark placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-center text-lg tracking-widest transition-all"
                   maxLength={6}
                   required
                 />
               </div>
 
               {error && (
-                <div className="bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg p-3">
-                  <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+                <div className="bg-primary/10 border border-primary rounded-lg p-3">
+                  <p className="text-sm text-primary font-medium">{error}</p>
                 </div>
               )}
 
               <button
                 type="submit"
                 disabled={loading || otp.length !== 6}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+                onMouseEnter={(e) => {
+                  if (!loading && otp.length === 6) e.currentTarget.style.backgroundColor = '#D84545';
+                }}
+                onMouseLeave={(e) => {
+                  if (!loading && otp.length === 6) e.currentTarget.style.backgroundColor = '#C41E3A';
+                }}
+                style={{ backgroundColor: loading || otp.length !== 6 ? '#d1d5db' : '#C41E3A' }}
+                className="w-full disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
               >
                 {loading ? (
                   <>
@@ -188,7 +202,7 @@ export default function LoginPage() {
                   setOtp('');
                   setError('');
                 }}
-                className="w-full text-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium py-2 transition-colors"
+                className="w-full text-center text-primary hover:text-hm-dark font-medium py-2 transition-colors cursor-pointer"
               >
                 Change Email
               </button>

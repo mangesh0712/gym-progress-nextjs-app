@@ -82,19 +82,19 @@ export default function WorkoutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-md">
+      <div className="bg-white border-b border-hm-light">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={handleGoBack}
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-2xl"
+              className="text-primary hover:text-hm-dark text-2xl font-bold cursor-pointer transition-colors"
               title="Go back to dashboard"
             >
               ←
             </button>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">💪 Gym Tracker</h1>
+            <h1 className="text-2xl font-bold text-primary">💪 Gym Tracker</h1>
           </div>
           <ThemeSwitcher />
         </div>
@@ -105,14 +105,14 @@ export default function WorkoutPage() {
         <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 h-full">
           {/* Left side - 50% on mobile/tablet, 70% on desktop */}
           <div className="lg:col-span-3">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6 md:p-8 h-full">
+            <div className="bg-hm-light rounded-lg shadow-md p-4 sm:p-6 md:p-8 h-full">
               {/* Heading */}
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4 capitalize">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-hm-dark mb-3 sm:mb-4 capitalize">
                 {displayName}
               </h2>
 
               {/* Divider */}
-              <div className="border-b border-gray-300 dark:border-gray-600 mb-6"></div>
+              <div className="border-b border-gray-300 mb-6"></div>
 
               {/* Exercise Cards Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -130,33 +130,33 @@ export default function WorkoutPage() {
 
           {/* Right side - 50% on mobile/tablet, 30% on desktop */}
           <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6 h-full flex flex-col">
-              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">Logged</h3>
+            <div className="bg-hm-light rounded-lg shadow-md p-4 sm:p-6 h-full flex flex-col">
+              <h3 className="text-base sm:text-lg font-bold text-hm-dark mb-3 sm:mb-4">Logged</h3>
 
               {/* Logged Exercises List */}
               <div className="space-y-2 sm:space-y-3 flex-1 overflow-y-auto">
                 {loggedExercises.length === 0 ? (
-                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-xs sm:text-sm text-gray-600">
                     No exercises logged yet. Click an exercise to start!
                   </p>
                 ) : (
                   loggedExercises.map((entry) => (
                     <div
                       key={entry.id}
-                      className="bg-gray-100 dark:bg-gray-700 p-2 sm:p-3 rounded-lg"
+                      className="bg-white p-2 sm:p-3 rounded-lg border border-gray-200"
                     >
                       <div className="flex items-start justify-between mb-1 sm:mb-2">
-                        <p className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm truncate">
+                        <p className="font-semibold text-hm-dark text-xs sm:text-sm truncate">
                           {entry.exerciseName}
                         </p>
                         <button
                           onClick={() => handleEditEntry(entry.id)}
-                          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-xs font-medium ml-2 shrink-0"
+                          className="text-primary hover:text-hm-dark text-xs font-bold ml-2 shrink-0 cursor-pointer transition-colors"
                         >
                           Edit
                         </button>
                       </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400 space-y-0.5 sm:space-y-1">
+                      <div className="text-xs text-gray-700 space-y-0.5 sm:space-y-1">
                         {entry.sets.map((set, setIndex) => (
                           <p key={setIndex} className="truncate">
                             Set {setIndex + 1}: {set.kg || '—'}kg {set.reps ? `x ${set.reps}` : ''}

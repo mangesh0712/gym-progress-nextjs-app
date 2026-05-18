@@ -45,18 +45,18 @@ export function LogWorkoutModal({ exerciseName, onSave, onClose, initialSets }: 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 w-full max-w-md">
+      <div style={{ backgroundColor: '#F5F5F5' }} className="rounded-lg shadow-lg p-8 w-full max-w-md">
         {/* Header */}
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">{exerciseName}</h2>
+        <h2 className="text-2xl font-bold text-hm-dark mb-6">{exerciseName}</h2>
 
         {/* Set 1 */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+          <label className="block text-sm font-semibold text-hm-dark mb-2">
             Set 1
           </label>
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+              <label className="block text-xs text-hm-dark mb-1 font-semibold">
                 kg
               </label>
               <input
@@ -64,11 +64,11 @@ export function LogWorkoutModal({ exerciseName, onSave, onClose, initialSets }: 
                 placeholder="e.g. 20"
                 value={set1Kg}
                 onChange={(e) => updateSet1Kg(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-white text-hm-dark placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
             <div className="flex-1">
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+              <label className="block text-xs text-gray-700 mb-1 font-medium">
                 reps
               </label>
               <input
@@ -76,7 +76,7 @@ export function LogWorkoutModal({ exerciseName, onSave, onClose, initialSets }: 
                 placeholder="e.g. 10"
                 value={set1Reps}
                 onChange={(e) => updateSet1Reps(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-white text-hm-dark placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
           </div>
@@ -84,12 +84,12 @@ export function LogWorkoutModal({ exerciseName, onSave, onClose, initialSets }: 
 
         {/* Set 2 */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+          <label className="block text-sm font-semibold text-hm-dark mb-2">
             Set 2
           </label>
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+              <label className="block text-xs text-hm-dark mb-1 font-semibold">
                 kg
               </label>
               <input
@@ -97,11 +97,11 @@ export function LogWorkoutModal({ exerciseName, onSave, onClose, initialSets }: 
                 placeholder="e.g. 20"
                 value={set2Kg}
                 onChange={(e) => updateSet2Kg(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-white text-hm-dark placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
             <div className="flex-1">
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+              <label className="block text-xs text-gray-700 mb-1 font-medium">
                 reps
               </label>
               <input
@@ -109,7 +109,7 @@ export function LogWorkoutModal({ exerciseName, onSave, onClose, initialSets }: 
                 placeholder="e.g. 10"
                 value={set2Reps}
                 onChange={(e) => updateSet2Reps(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-white text-hm-dark placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
           </div>
@@ -117,12 +117,12 @@ export function LogWorkoutModal({ exerciseName, onSave, onClose, initialSets }: 
 
         {/* Set 3 */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+          <label className="block text-sm font-semibold text-hm-dark mb-2">
             Set 3
           </label>
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+              <label className="block text-xs text-hm-dark mb-1 font-semibold">
                 kg
               </label>
               <input
@@ -130,11 +130,11 @@ export function LogWorkoutModal({ exerciseName, onSave, onClose, initialSets }: 
                 placeholder="e.g. 20"
                 value={set3Kg}
                 onChange={(e) => updateSet3Kg(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-white text-hm-dark placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
             <div className="flex-1">
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+              <label className="block text-xs text-gray-700 mb-1 font-medium">
                 reps
               </label>
               <input
@@ -142,7 +142,7 @@ export function LogWorkoutModal({ exerciseName, onSave, onClose, initialSets }: 
                 placeholder="e.g. 10"
                 value={set3Reps}
                 onChange={(e) => updateSet3Reps(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-white text-hm-dark placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
           </div>
@@ -152,13 +152,16 @@ export function LogWorkoutModal({ exerciseName, onSave, onClose, initialSets }: 
         <div className="flex gap-3">
           <button
             onClick={handleSave}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all"
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#D84545')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#C41E3A')}
+            style={{ backgroundColor: '#C41E3A' }}
+            className="flex-1 text-white font-bold py-2 px-4 rounded-lg transition-all cursor-pointer"
           >
             Save
           </button>
           <button
             onClick={onClose}
-            className="flex-1 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-900 dark:text-white font-semibold py-2 px-4 rounded-lg transition-all"
+            className="flex-1 bg-gray-300 hover:bg-gray-400 text-hm-dark font-semibold py-2 px-4 rounded-lg transition-all cursor-pointer"
           >
             Cancel
           </button>

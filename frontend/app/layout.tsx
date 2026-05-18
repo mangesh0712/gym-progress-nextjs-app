@@ -33,7 +33,7 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              const theme = localStorage.getItem('gym-theme') || 'dark';
+              const theme = localStorage.getItem('gym-theme') || 'light';
               if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
               } else {

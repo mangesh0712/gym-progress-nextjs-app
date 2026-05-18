@@ -9,11 +9,18 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: '#3B82F6',
-        secondary: '#10B981',
-        danger: '#EF4444',
+        primary: '#C41E3A',
+        secondary: '#000000',
+        accent: '#C41E3A',
+        danger: '#C41E3A',
         warning: '#F59E0B',
         success: '#10B981',
+        'hm-light': '#F5F5F5',
+        'hm-dark': '#1a1a1a',
+      },
+      backgroundColor: {
+        base: '#FFFFFF',
+        muted: '#F5F5F5',
       },
     },
   },

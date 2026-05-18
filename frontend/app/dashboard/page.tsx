@@ -44,16 +44,16 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-md">
+      <div className="bg-white border-b border-hm-light">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">💪 Gym Tracker</h1>
+          <h1 className="text-2xl font-bold text-primary">💪 Gym Tracker</h1>
           <div className="flex items-center gap-4">
             <ThemeSwitcher />
             <button
               onClick={handleLogout}
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+              className="text-primary hover:text-hm-dark dark:hover:text-gray-300 font-semibold transition-colors"
             >
               Logout
             </button>
@@ -66,11 +66,11 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 h-full">
           {/* Left side - 70% (3 columns out of 4) */}
           <div className="lg:col-span-3">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 h-full min-h-96">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Your Progress</h2>
-              <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+            <div className="bg-hm-light rounded-lg shadow-md p-8 h-full min-h-96">
+              <h2 className="text-2xl font-bold text-hm-dark mb-6">Your Progress</h2>
+              <div className="flex items-center justify-center h-full text-gray-600">
                 <div className="text-center">
-                  <p className="text-lg mb-2">📊 Graphs placeholder</p>
+                  <p className="text-lg font-medium mb-2">📊 Graphs placeholder</p>
                   <p className="text-sm">Progress charts and statistics will appear here</p>
                 </div>
               </div>
@@ -79,10 +79,13 @@ export default function DashboardPage() {
 
           {/* Right side - 30% (1 column out of 4) */}
           <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 h-full flex flex-col">
+            <div className="bg-hm-light rounded-lg shadow-md p-6 h-full flex flex-col">
               <button
                 onClick={() => setShowMuscleGroups(!showMuscleGroups)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-4 rounded-lg transition-all duration-200 mb-4"
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#D84545')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#C41E3A')}
+                style={{ backgroundColor: '#C41E3A' }}
+                className="w-full text-white font-bold py-4 px-4 rounded-lg transition-all duration-200 mb-4 cursor-pointer"
               >
                 Start Your Workout
               </button>
@@ -94,7 +97,7 @@ export default function DashboardPage() {
                     <button
                       key={group}
                       onClick={() => handleMuscleGroupClick(group)}
-                      className="w-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-medium py-3 px-4 rounded-lg transition-all duration-200"
+                      className="w-full bg-white hover:bg-gray-100 text-hm-dark font-semibold py-3 px-4 rounded-lg transition-all duration-200 border border-gray-300 cursor-pointer"
                     >
                       {group}
                     </button>
