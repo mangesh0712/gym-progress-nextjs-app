@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/authStore';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { ExerciseCard } from '@/components/ExerciseCard';
 import { LogWorkoutModal } from '@/components/LogWorkoutModal';
+import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { getExercisesForMuscleGroup, formatMuscleGroupName } from '@/lib/exercises';
 
 interface LoggedEntry {
@@ -23,6 +24,7 @@ export default function WorkoutPage() {
   const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
   const [loggedExercises, setLoggedExercises] = useState<LoggedEntry[]>([]);
   const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
+  const [deleteConfirmingEntryId, setDeleteConfirmingEntryId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -71,6 +73,26 @@ export default function WorkoutPage() {
     }
   };
 
+  const handleDeleteEntry = (entryId: string) => {
+    setDeleteConfirmingEntryId(entryId);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deleteConfirmingEntryId) return;
+
+    setLoggedExercises((prev) =>
+      prev.filter((entry) => entry.id !== deleteConfirmingEntryId)
+    );
+    setDeleteConfirmingEntryId(null);
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteConfirmingEntryId(null);
+  };
+
+  const loggedExerciseNames = new Set(loggedExercises.map((entry) => entry.exerciseName));
+  const availableExercises = exercises.filter((exercise) => !loggedExerciseNames.has(exercise.name));
+
   const handleGoBack = () => {
     if (loggedExercises.length > 0) {
       const confirmed = window.confirm(
@@ -102,10 +124,10 @@ export default function WorkoutPage() {
 
       {/* Main Content - 50/50 on mobile/tablet, 70/30 on desktop */}
       <div className="flex-1 p-4 md:p-8">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 h-full">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {/* Left side - 50% on mobile/tablet, 70% on desktop */}
           <div className="lg:col-span-3">
-            <div className="bg-hm-light rounded-lg shadow-md p-4 sm:p-6 md:p-8 h-full">
+            <div className="bg-hm-light rounded-lg shadow-md p-4 sm:p-6 md:p-8">
               {/* Heading */}
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-hm-dark mb-3 sm:mb-4 capitalize">
                 {displayName}
@@ -114,65 +136,77 @@ export default function WorkoutPage() {
               {/* Divider */}
               <div className="border-b border-gray-300 mb-6"></div>
 
-              {/* Exercise Cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {exercises.map((exercise) => (
-                  <ExerciseCard
-                    key={exercise.id}
-                    name={exercise.name}
-                    color={exercise.color}
-                    onClick={() => handleExerciseClick(exercise.name)}
-                  />
-                ))}
+              {/* Exercise Cards Grid - Scrollable Container */}
+              <div className="min-h-[500px] max-h-[530px] overflow-y-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {availableExercises.map((exercise) => (
+                    <ExerciseCard
+                      key={exercise.id}
+                      name={exercise.name}
+                      color={exercise.color}
+                      onClick={() => handleExerciseClick(exercise.name)}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Right side - 50% on mobile/tablet, 30% on desktop */}
           <div className="lg:col-span-1">
-            <div className="bg-hm-light rounded-lg shadow-md p-4 sm:p-6 h-full flex flex-col">
+            <div className="bg-hm-light rounded-lg shadow-md p-4 sm:p-6">
               <h3 className="text-base sm:text-lg font-bold text-hm-dark mb-3 sm:mb-4">Logged</h3>
 
-              {/* Logged Exercises List */}
-              <div className="space-y-2 sm:space-y-3 flex-1 overflow-y-auto">
-                {loggedExercises.length === 0 ? (
-                  <p className="text-xs sm:text-sm text-gray-600">
-                    No exercises logged yet. Click an exercise to start!
-                  </p>
-                ) : (
-                  loggedExercises.map((entry) => (
-                    <div
-                      key={entry.id}
-                      className="bg-white p-2 sm:p-3 rounded-lg border border-gray-200"
-                    >
-                      <div className="flex items-start justify-between mb-1 sm:mb-2">
-                        <p className="font-semibold text-hm-dark text-xs sm:text-sm truncate">
-                          {entry.exerciseName}
-                        </p>
-                        <button
-                          onClick={() => handleEditEntry(entry.id)}
-                          className="text-primary hover:text-hm-dark text-xs font-bold ml-2 shrink-0 cursor-pointer transition-colors"
-                        >
-                          Edit
-                        </button>
-                      </div>
-                      <div className="text-xs text-gray-700 space-y-0.5 sm:space-y-1">
-                        {entry.sets.map((set, setIndex) => (
-                          <p key={setIndex} className="truncate">
-                            Set {setIndex + 1}: {set.kg || '—'}kg {set.reps ? `x ${set.reps}` : ''}
+              {/* Logged Exercises List - Scrollable Container */}
+              <div className="min-h-[500px] max-h-[530px] overflow-y-auto">
+                <div className="space-y-2 sm:space-y-3">
+                  {loggedExercises.length === 0 ? (
+                    <p className="text-xs sm:text-sm text-gray-600">
+                      No exercises logged yet. Click an exercise to start!
+                    </p>
+                  ) : (
+                    loggedExercises.map((entry) => (
+                      <div
+                        key={entry.id}
+                        className="bg-white p-2 sm:p-3 rounded-lg border border-gray-200"
+                      >
+                        <div className="flex items-start justify-between mb-1 sm:mb-2">
+                          <p className="font-semibold text-hm-dark text-xs sm:text-sm truncate">
+                            {entry.exerciseName}
                           </p>
-                        ))}
+                          <div className="flex gap-1 shrink-0 ml-2">
+                            <button
+                              onClick={() => handleEditEntry(entry.id)}
+                              className="text-primary hover:text-hm-dark text-xs font-bold cursor-pointer transition-colors"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteEntry(entry.id)}
+                              className="text-red-500 hover:text-red-700 text-xs font-bold cursor-pointer transition-colors"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                        <div className="text-xs text-gray-700 space-y-0.5 sm:space-y-1">
+                          {entry.sets.map((set, setIndex) => (
+                            <p key={setIndex} className="truncate">
+                              Set {setIndex + 1}: {set.kg || '—'}kg {set.reps ? `x ${set.reps}` : ''}
+                            </p>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))
-                )}
+                    ))
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modals */}
       {selectedExercise && (
         <LogWorkoutModal
           exerciseName={selectedExercise}
@@ -186,6 +220,17 @@ export default function WorkoutPage() {
               ? loggedExercises.find((e) => e.id === editingEntryId)?.sets
               : undefined
           }
+        />
+      )}
+
+      {deleteConfirmingEntryId && (
+        <ConfirmationModal
+          title="Delete Exercise"
+          message="Are you sure you want to delete this exercise? This action cannot be undone."
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
+          confirmText="Delete"
+          cancelText="Cancel"
         />
       )}
     </div>

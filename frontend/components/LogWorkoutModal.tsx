@@ -33,6 +33,11 @@ export function LogWorkoutModal({ exerciseName, onSave, onClose, initialSets }: 
     }
   }, [initialSets, setSets, resetSets]);
 
+  const hasAtLeastOneCompletedSet =
+    (set1Kg && set1Reps) ||
+    (set2Kg && set2Reps) ||
+    (set3Kg && set3Reps);
+
   const handleSave = () => {
     onSave([
       { kg: set1Kg, reps: set1Reps },
@@ -149,13 +154,18 @@ export function LogWorkoutModal({ exerciseName, onSave, onClose, initialSets }: 
         </div>
 
         {/* Buttons */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 mb-3">
           <button
             onClick={handleSave}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#D84545')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#C41E3A')}
-            style={{ backgroundColor: '#C41E3A' }}
-            className="flex-1 text-white font-bold py-2 px-4 rounded-lg transition-all cursor-pointer"
+            disabled={!hasAtLeastOneCompletedSet}
+            onMouseEnter={(e) => {
+              if (hasAtLeastOneCompletedSet) e.currentTarget.style.backgroundColor = '#D84545';
+            }}
+            onMouseLeave={(e) => {
+              if (hasAtLeastOneCompletedSet) e.currentTarget.style.backgroundColor = '#C41E3A';
+            }}
+            style={{ backgroundColor: hasAtLeastOneCompletedSet ? '#C41E3A' : '#d1d5db' }}
+            className="flex-1 text-white font-bold py-2 px-4 rounded-lg transition-all disabled:cursor-not-allowed"
           >
             Save
           </button>
@@ -166,6 +176,12 @@ export function LogWorkoutModal({ exerciseName, onSave, onClose, initialSets }: 
             Cancel
           </button>
         </div>
+
+        {!hasAtLeastOneCompletedSet && (
+          <p className="text-xs text-red-500 text-center font-medium">
+            Please add at least one complete set with both kg and reps
+          </p>
+        )}
       </div>
     </div>
   );
