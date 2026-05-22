@@ -53,4 +53,4 @@ npm run dev
 
 # Create Python virtual environment
 python3 -m venv venv
-source venv/bin/activate 
+source venv/bin/activate .
