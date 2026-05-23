@@ -4,33 +4,38 @@ import { useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { onAuthStateChange } from '@/lib/supabase';
 
+const COOKIE_OPTIONS = 'path=/; secure; samesite=lax';
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const initializeAuth = useAuthStore((state) => state.initializeAuth);
-  const setSession = useAuthStore((state) => state.setSession);
-  const session = useAuthStore((state) => state.session);
+  const { initializeAuth, setSession, session } = useAuthStore((state) => ({
+    initializeAuth: state.initializeAuth,
+    setSession: state.setSession,
+    session: state.session,
+  }));
 
   useEffect(() => {
-    initializeAuth();
+    initializeAuth().catch((error) => {
+      console.error('Failed to initialize auth:', error);
+    });
+  }, [initializeAuth]);
 
+  useEffect(() => {
     const subscription = onAuthStateChange((isAuthenticated, userId) => {
       if (isAuthenticated && userId) {
         setSession({
+          user_id: userId,
           access_token: '',
           refresh_token: '',
-          user_id: userId,
         });
       }
     });
 
-    return () => {
-      subscription?.unsubscribe();
-    };
-  }, [initializeAuth, setSession]);
+    return () => subscription?.unsubscribe();
+  }, [setSession]);
 
-  // Set cookie when session is available
   useEffect(() => {
-    if (session?.access_token) {
-      document.cookie = `access_token=${session.access_token}; path=/; secure; samesite=lax`;
+    if (session?.access_token?.trim()) {
+      document.cookie = `access_token=${session.access_token}; ${COOKIE_OPTIONS}`;
     }
   }, [session?.access_token]);
 
