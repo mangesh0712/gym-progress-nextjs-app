@@ -7,11 +7,9 @@ import { onAuthStateChange } from '@/lib/supabase';
 const COOKIE_OPTIONS = 'path=/; secure; samesite=lax';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { initializeAuth, setSession, session } = useAuthStore((state) => ({
-    initializeAuth: state.initializeAuth,
-    setSession: state.setSession,
-    session: state.session,
-  }));
+  const initializeAuth = useAuthStore((state) => state.initializeAuth);
+  const setSession = useAuthStore((state) => state.setSession);
+  const session = useAuthStore((state) => state.session);
 
   useEffect(() => {
     initializeAuth().catch((error) => {
