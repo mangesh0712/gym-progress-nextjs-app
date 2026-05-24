@@ -481,6 +481,90 @@ class SupabaseDB:
             logger.error(f"Error checking if token {jti} is blacklisted: {str(e)}")
             raise
 
+    def get_sessions_with_exercises(self, user_id: str) -> List[Dict[str, Any]]:
+        """
+        Get all workout sessions for a user with embedded exercises.
+
+        Args:
+            user_id: UUID of the user
+
+        Returns:
+            List of session records with exercises nested
+        """
+        try:
+            response = (
+                self.client.table("workout_sessions")
+                .select("id, muscle_group, created_at, workout_exercises(exercise_name, sets)")
+                .eq("user_id", user_id)
+                .order("created_at", desc=True)
+                .execute()
+            )
+            return response.data
+        except Exception as e:
+            logger.error(f"Error fetching sessions with exercises for user {user_id}: {str(e)}")
+            raise
+
+    def get_exercises(self, muscle_group: str) -> List[Dict[str, Any]]:
+        """
+        Get all exercises for a specific muscle group.
+
+        Args:
+            muscle_group: Muscle group name (e.g., 'biceps', 'chest')
+
+        Returns:
+            List of exercise records
+        """
+        try:
+            response = (
+                self.client.table("exercise_library")
+                .select("*")
+                .eq("muscle_group", muscle_group)
+                .order("created_at")
+                .execute()
+            )
+            return response.data
+        except Exception as e:
+            logger.error(f"Error fetching exercises for muscle group {muscle_group}: {str(e)}")
+            raise
+
+    def create_exercise(self, name: str, muscle_group: str) -> Dict[str, Any]:
+        """
+        Add a new exercise to the exercise library.
+
+        Args:
+            name: Exercise name
+            muscle_group: Muscle group (e.g., 'biceps', 'chest')
+
+        Returns:
+            Created exercise record
+        """
+        try:
+            response = (
+                self.client.table("exercise_library")
+                .insert({"name": name, "muscle_group": muscle_group})
+                .execute()
+            )
+            return response.data[0]
+        except Exception as e:
+            logger.error(f"Error creating exercise {name}: {str(e)}")
+            raise
+
+    def delete_exercise(self, exercise_id: str) -> None:
+        """
+        Delete an exercise from the exercise library.
+
+        Args:
+            exercise_id: UUID of the exercise to delete
+
+        Returns:
+            None
+        """
+        try:
+            self.client.table("exercise_library").delete().eq("id", exercise_id).execute()
+        except Exception as e:
+            logger.error(f"Error deleting exercise {exercise_id}: {str(e)}")
+            raise
+
 
 # Initialize Supabase client on module load
 def get_db() -> SupabaseDB:

@@ -1,9 +1,26 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List
 from models.workout import WorkoutSessionCreate
 from auth.middleware import get_current_user_id
 from db.supabase_client import get_db
 
 router = APIRouter(prefix="/workouts", tags=["workouts"])
+
+
+@router.get("/sessions", response_model=list, status_code=status.HTTP_200_OK)
+async def get_workout_sessions(
+    user_id: str = Depends(get_current_user_id),
+    db = Depends(get_db),
+):
+    """Get all workout sessions for the current user with exercises."""
+    try:
+        sessions = db.get_sessions_with_exercises(user_id)
+        return sessions
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch sessions: {str(e)}",
+        )
 
 
 @router.post("/sessions", response_model=dict, status_code=status.HTTP_201_CREATED)
