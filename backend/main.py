@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Import routers
-from routers import auth, workouts
+from routers import auth, workouts, exercises
 
 # Configure logging
 logging.basicConfig(
@@ -32,6 +32,7 @@ app = FastAPI(
 # Include routers
 app.include_router(auth.router)
 app.include_router(workouts.router)
+app.include_router(exercises.router)
 
 # Configure CORS - read from environment for production flexibility
 cors_origins = os.getenv(

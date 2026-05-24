@@ -90,7 +90,7 @@ export async function sendOtp(email: string): Promise<string> {
 export async function verifyOtp(
   email: string,
   code: string
-): Promise<{ access_token: string; refresh_token: string; user_id: string }> {
+): Promise<{ access_token: string; refresh_token: string; user_id: string; email: string }> {
   const response = await fetch(`${API_URL}/auth/verify-otp`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -107,6 +107,7 @@ export async function verifyOtp(
     access_token: data.access_token,
     refresh_token: data.refresh_token,
     user_id: data.user_id,
+    email,
   };
 }
 

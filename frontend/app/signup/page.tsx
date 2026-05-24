@@ -24,6 +24,7 @@ export default function SignupPage() {
   const [otp, setOtp] = useState('');
 
   const setSession = useAuthStore((state) => state.setSession);
+  const setUser = useAuthStore((state) => state.setUser);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -75,6 +76,13 @@ export default function SignupPage() {
 
       const sessionData = await verifySignup(formData, otp);
       setSession(sessionData);
+
+      // Set user with email
+      setUser({
+        id: sessionData.user_id,
+        email: formData.email,
+        created_at: new Date().toISOString(),
+      });
 
       // Set access token as cookie
       document.cookie = `access_token=${sessionData.access_token}; path=/; secure; samesite=lax`;

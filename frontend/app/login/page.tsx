@@ -15,6 +15,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const setSession = useAuthStore((state) => state.setSession);
+  const setUser = useAuthStore((state) => state.setUser);
 
   const handleSendOtp = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,6 +42,13 @@ export default function LoginPage() {
     try {
       const sessionData = await verifyOtp(email, otp);
       setSession(sessionData);
+
+      // Set user with email
+      setUser({
+        id: sessionData.user_id,
+        email: sessionData.email,
+        created_at: new Date().toISOString(),
+      });
 
       // Set access token as cookie for middleware
       document.cookie = `access_token=${sessionData.access_token}; path=/; secure; samesite=lax`;

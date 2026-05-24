@@ -8,7 +8,7 @@ import { ExerciseCard } from '@/components/ExerciseCard';
 import { LogWorkoutModal } from '@/components/LogWorkoutModal';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { formatMuscleGroupName, exercises as staticExercises } from '@/lib/exercises';
-import { saveWorkoutSession, isTokenExpired, refreshAccessToken, fetchExercises, Exercise } from '@/lib/supabase';
+import { saveWorkoutSession, isTokenExpired, refreshAccessToken, fetchExercises, fetchWorkoutHistory, addExercise, Exercise, WorkoutSession } from '@/lib/supabase';
 
 interface LoggedEntry {
   id: string;
@@ -23,6 +23,8 @@ export default function WorkoutPage() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isHydrated = useAuthStore((state) => state.isHydrated);
   const session = useAuthStore((state) => state.session);
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.email === 'mangeshkhandale327@gmail.com';
 
   const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
   const [loggedExercises, setLoggedExercises] = useState<LoggedEntry[]>([]);
@@ -33,6 +35,13 @@ export default function WorkoutPage() {
   const [saveError, setSaveError] = useState('');
   const [apiExercises, setApiExercises] = useState<Exercise[]>([]);
   const [isLoadingExercises, setIsLoadingExercises] = useState(true);
+  const [showPreviousWorkouts, setShowPreviousWorkouts] = useState(false);
+  const [previousWorkouts, setPreviousWorkouts] = useState<WorkoutSession[]>([]);
+  const [isLoadingPrevious, setIsLoadingPrevious] = useState(false);
+  const [showAddExerciseModal, setShowAddExerciseModal] = useState(false);
+  const [newExerciseName, setNewExerciseName] = useState('');
+  const [isAddingExercise, setIsAddingExercise] = useState(false);
+  const [addExerciseError, setAddExerciseError] = useState('');
 
   useEffect(() => {
     if (isHydrated && !isAuthenticated) {
@@ -252,6 +261,58 @@ export default function WorkoutPage() {
     router.push('/dashboard');
   };
 
+  const loadPreviousWorkouts = async () => {
+    try {
+      setIsLoadingPrevious(true);
+      if (session?.access_token) {
+        const data = await fetchWorkoutHistory(session.access_token);
+        const filtered = data.filter(w => w.muscle_group === muscleGroup.toLowerCase());
+        setPreviousWorkouts(filtered);
+        setShowPreviousWorkouts(true);
+      }
+    } catch (error) {
+      console.error('Failed to load previous workouts:', error);
+    } finally {
+      setIsLoadingPrevious(false);
+    }
+  };
+
+  const handleAddExercise = async () => {
+    setAddExerciseError('');
+
+    // Validate exercise name is not empty
+    if (!newExerciseName.trim()) {
+      setAddExerciseError('Exercise name cannot be empty');
+      return;
+    }
+
+    // Check for duplicate exercise names
+    const exerciseNames = exercises.map(ex => ex.name.toLowerCase());
+    if (exerciseNames.includes(newExerciseName.toLowerCase())) {
+      setAddExerciseError(`This exercise already exists for ${displayName}`);
+      return;
+    }
+
+    setIsAddingExercise(true);
+    try {
+      if (session?.access_token) {
+        const newExercise = await addExercise(newExerciseName, muscleGroup.toLowerCase(), session.access_token);
+
+        // Add the new exercise to the apiExercises list
+        setApiExercises([...apiExercises, newExercise]);
+
+        // Clear form and close modal
+        setNewExerciseName('');
+        setShowAddExerciseModal(false);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to add exercise';
+      setAddExerciseError(errorMessage);
+    } finally {
+      setIsAddingExercise(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
@@ -330,15 +391,25 @@ export default function WorkoutPage() {
           <div className="lg:col-span-3 order-2 lg:order-1">
             <div className="bg-hm-light rounded-lg shadow-md p-4 sm:p-6 md:p-8">
               {/* Heading */}
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-hm-dark mb-3 sm:mb-4 capitalize">
-                {displayName}
-              </h2>
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-hm-dark capitalize">
+                  {displayName}
+                </h2>
+                {isAdmin && (
+                  <button
+                    onClick={() => setShowAddExerciseModal(true)}
+                    className="text-xs sm:text-sm px-2 py-1 bg-green-500 hover:bg-green-600 text-white font-semibold rounded transition-colors"
+                  >
+                    + Add Exercise
+                  </button>
+                )}
+              </div>
 
               {/* Divider */}
               <div className="border-b border-gray-300 mb-6"></div>
 
               {/* Exercise Cards Grid - Scrollable Container */}
-              <div className="min-h-[250px] max-h-[300px] sm:min-h-[350px] sm:max-h-[400px] lg:min-h-[500px] lg:max-h-[530px] overflow-y-auto">
+              <div className="h-[420px] sm:h-[400px] lg:h-[530px] overflow-y-auto">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {availableExercises.map((exercise) => (
                     <ExerciseCard
@@ -356,10 +427,19 @@ export default function WorkoutPage() {
           {/* Right side - Shows first on mobile, 30% on desktop */}
           <div className="lg:col-span-1 order-1 lg:order-2">
             <div className="bg-hm-light rounded-lg shadow-md p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-bold text-hm-dark mb-3 sm:mb-4">Logged</h3>
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <h3 className="text-base sm:text-lg font-bold text-hm-dark">Logged</h3>
+                <button
+                  onClick={loadPreviousWorkouts}
+                  disabled={isLoadingPrevious}
+                  className="text-xs sm:text-sm px-2 py-1 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded transition-colors disabled:opacity-50"
+                >
+                  {isLoadingPrevious ? 'Loading...' : 'Previous'}
+                </button>
+              </div>
 
               {/* Logged Exercises List - Scrollable Container */}
-              <div className="min-h-[250px] max-h-[300px] sm:min-h-[350px] sm:max-h-[400px] lg:min-h-[500px] lg:max-h-[530px] overflow-y-auto">
+              <div className="overflow-y-auto max-h-[350px] sm:max-h-[400px] lg:max-h-[530px]">
                 <div className="space-y-2 sm:space-y-3">
                   {loggedExercises.length === 0 ? (
                     <p className="text-xs sm:text-sm text-gray-600">
@@ -371,30 +451,33 @@ export default function WorkoutPage() {
                         key={entry.id}
                         className="bg-white p-2 sm:p-3 rounded-lg border border-gray-200"
                       >
-                        <div className="flex items-start justify-between mb-1 sm:mb-2">
+                        <div className="flex items-start justify-between mb-2 sm:mb-3">
                           <p className="font-semibold text-hm-dark text-xs sm:text-sm truncate">
                             {entry.exerciseName}
                           </p>
                           <div className="flex gap-1 shrink-0 ml-2">
                             <button
                               onClick={() => handleEditEntry(entry.id)}
-                              className="text-primary hover:text-hm-dark text-xs font-bold cursor-pointer transition-colors"
+                              className="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded transition-colors"
                             >
                               Edit
                             </button>
                             <button
                               onClick={() => handleDeleteEntry(entry.id)}
-                              className="text-red-500 hover:text-red-700 text-xs font-bold cursor-pointer transition-colors"
+                              className="px-2 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded transition-colors"
                             >
                               Delete
                             </button>
                           </div>
                         </div>
-                        <div className="text-xs text-gray-700 space-y-0.5 sm:space-y-1">
+                        <div className="flex gap-2">
                           {entry.sets.map((set, setIndex) => (
-                            <p key={setIndex} className="truncate">
-                              Set {setIndex + 1}: {set.kg || '—'}kg {set.reps ? `x ${set.reps}` : ''}
-                            </p>
+                            <div key={setIndex} className="flex-1 flex flex-col items-center gap-1">
+                              <span className="text-xs font-bold text-gray-700">{setIndex + 1}</span>
+                              <div className="w-full px-2 py-1 bg-gray-200 rounded text-xs text-center text-gray-800 font-medium">
+                                {set.kg || '—'}kg{set.reps ? ` × ${set.reps}` : ''}
+                              </div>
+                            </div>
                           ))}
                         </div>
                       </div>
@@ -433,6 +516,119 @@ export default function WorkoutPage() {
           confirmText="Delete"
           cancelText="Cancel"
         />
+      )}
+
+      {showPreviousWorkouts && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b p-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold">Previous {displayName} Workouts</h2>
+              <button
+                onClick={() => setShowPreviousWorkouts(false)}
+                className="text-gray-500 hover:text-gray-700 text-xl"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              {previousWorkouts.length === 0 ? (
+                <p className="text-sm text-gray-600">No previous workouts found</p>
+              ) : (
+                previousWorkouts.map((workout) => (
+                  <div key={workout.id} className="border-l-4 border-primary pl-3">
+                    <p className="font-semibold text-sm">
+                      {new Date(workout.created_at).toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </p>
+                    <div className="mt-2 space-y-1 text-xs text-gray-700">
+                      {workout.workout_exercises?.map((exercise, idx) => (
+                        <p key={idx}>
+                          <span className="font-medium">{exercise.exercise_name}:</span>{' '}
+                          {exercise.sets.length} sets{' '}
+                          <span className="text-gray-600">
+                            ({exercise.sets.map((s) => `${s.kg}kg × ${s.reps}`).join(', ')})
+                          </span>
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAddExerciseModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="bg-white border-b p-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold">Add Exercise to {displayName}</h2>
+              <button
+                onClick={() => {
+                  setShowAddExerciseModal(false);
+                  setNewExerciseName('');
+                  setAddExerciseError('');
+                }}
+                className="text-gray-500 hover:text-gray-700 text-xl"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Exercise Name
+                </label>
+                <input
+                  type="text"
+                  value={newExerciseName}
+                  onChange={(e) => setNewExerciseName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleAddExercise();
+                    }
+                  }}
+                  placeholder="e.g., Dumbbell Curl"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  disabled={isAddingExercise}
+                  autoFocus
+                />
+              </div>
+
+              {addExerciseError && (
+                <p className="text-sm text-red-600 bg-red-50 p-2 rounded">
+                  {addExerciseError}
+                </p>
+              )}
+
+              <div className="flex gap-2 justify-end">
+                <button
+                  onClick={() => {
+                    setShowAddExerciseModal(false);
+                    setNewExerciseName('');
+                    setAddExerciseError('');
+                  }}
+                  disabled={isAddingExercise}
+                  className="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddExercise}
+                  disabled={isAddingExercise || !newExerciseName.trim()}
+                  className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isAddingExercise ? 'Adding...' : 'Add Exercise'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

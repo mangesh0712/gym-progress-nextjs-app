@@ -104,6 +104,7 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'gym-auth',
       partialize: (state) => ({
+        user: state.user,
         session: state.session,
         phone: state.phone,
         isAuthenticated: state.isAuthenticated,
