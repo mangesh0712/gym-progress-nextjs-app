@@ -24,6 +24,8 @@ export default function WorkoutPage() {
   const isHydrated = useAuthStore((state) => state.isHydrated);
   const session = useAuthStore((state) => state.session);
 
+  console.log('WorkoutPage mounted - muscleGroup:', muscleGroup, 'isHydrated:', isHydrated, 'isAuthenticated:', isAuthenticated, 'session:', session);
+
   const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
   const [loggedExercises, setLoggedExercises] = useState<LoggedEntry[]>([]);
   const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
@@ -35,7 +37,9 @@ export default function WorkoutPage() {
   const [isLoadingExercises, setIsLoadingExercises] = useState(true);
 
   useEffect(() => {
+    console.log('Auth check - isHydrated:', isHydrated, 'isAuthenticated:', isAuthenticated);
     if (isHydrated && !isAuthenticated) {
+      console.log('Redirecting to login because not authenticated');
       router.push('/login');
     }
   }, [isHydrated, isAuthenticated, router]);
