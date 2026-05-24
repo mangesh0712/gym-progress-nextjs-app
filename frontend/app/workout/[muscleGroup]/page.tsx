@@ -21,6 +21,7 @@ export default function WorkoutPage() {
   const params = useParams();
   const muscleGroup = params.muscleGroup as string;
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isHydrated = useAuthStore((state) => state.isHydrated);
   const session = useAuthStore((state) => state.session);
 
   const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
@@ -34,10 +35,10 @@ export default function WorkoutPage() {
   const [isLoadingExercises, setIsLoadingExercises] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (isHydrated && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, router]);
+  }, [isHydrated, isAuthenticated, router]);
 
   useEffect(() => {
     const loadExercises = async () => {

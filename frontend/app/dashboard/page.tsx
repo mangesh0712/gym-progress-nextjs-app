@@ -14,6 +14,7 @@ const muscleGroupsList = ['Chest', 'Legs', 'Shoulders', 'Back', 'Biceps', 'Trice
 export default function DashboardPage() {
   const router = useRouter();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isHydrated = useAuthStore((state) => state.isHydrated);
   const session = useAuthStore((state) => state.session);
   const logout = useAuthStore((state) => state.logout);
 
@@ -24,10 +25,10 @@ export default function DashboardPage() {
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState('chest');
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (isHydrated && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, router]);
+  }, [isHydrated, isAuthenticated, router]);
 
   useEffect(() => {
     const loadSessions = async () => {
