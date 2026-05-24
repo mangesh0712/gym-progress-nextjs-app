@@ -99,6 +99,7 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         session: state.session,
         phone: state.phone,
+        isAuthenticated: state.isAuthenticated,
       }),
     }
   )
