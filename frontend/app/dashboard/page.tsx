@@ -116,7 +116,7 @@ export default function DashboardPage() {
           <div className="card bg-base-200 shadow-md p-6">
             <button
               onClick={() => setShowMuscleGroups(!showMuscleGroups)}
-              className="btn btn-primary btn-lg w-full"
+              className="btn btn-lg w-full bg-black! text-white! hover:bg-gray-900!"
             >
               Start Your Workout
             </button>
@@ -127,7 +127,7 @@ export default function DashboardPage() {
                   <button
                     key={group}
                     onClick={() => handleMuscleGroupClick(group)}
-                    className="btn btn-outline btn-sm"
+                    className="btn btn-sm bg-gray-300! text-black! hover:bg-gray-400!"
                   >
                     {group}
                   </button>
