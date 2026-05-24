@@ -49,7 +49,9 @@ export default function DashboardPage() {
   }, [session?.access_token]);
 
   const handleMuscleGroupClick = (group: string) => {
-    router.push(`/workout/${group.toLowerCase()}`);
+    const path = `/workout/${group.toLowerCase()}`;
+    console.log('Navigating to:', path);
+    router.push(path);
   };
 
   const handleLogout = () => {
@@ -127,7 +129,8 @@ export default function DashboardPage() {
                   <button
                     key={group}
                     onClick={() => handleMuscleGroupClick(group)}
-                    className="px-3 py-2 bg-gray-300 text-black rounded-sm text-sm hover:bg-gray-400 transition-colors"
+                    type="button"
+                    className="px-3 py-2 bg-gray-300 text-black rounded-sm text-sm hover:bg-gray-400 transition-colors cursor-pointer pointer-events-auto"
                   >
                     {group}
                   </button>
