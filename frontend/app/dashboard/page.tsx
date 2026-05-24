@@ -116,18 +116,18 @@ export default function DashboardPage() {
           <div className="card bg-base-200 shadow-md p-6">
             <button
               onClick={() => setShowMuscleGroups(!showMuscleGroups)}
-              className="btn btn-lg w-full bg-black! text-white! hover:bg-gray-900!"
+              className="w-full px-4 py-2 bg-black text-white rounded-sm font-semibold hover:bg-gray-900 transition-colors"
             >
               Start Your Workout
             </button>
 
             {showMuscleGroups && (
-              <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div className="mt-3 grid grid-cols-3 gap-2 sm:gap-3">
                 {muscleGroupsList.map((group) => (
                   <button
                     key={group}
                     onClick={() => handleMuscleGroupClick(group)}
-                    className="btn btn-sm bg-gray-300! text-black! hover:bg-gray-400!"
+                    className="px-3 py-2 bg-gray-300 text-black rounded-sm text-sm hover:bg-gray-400 transition-colors"
                   >
                     {group}
                   </button>
