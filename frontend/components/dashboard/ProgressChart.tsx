@@ -89,9 +89,9 @@ export function ProgressChart({ sessions, selectedMuscleGroup }: ProgressChartPr
         <p>📊 Weight (bars) & Reps (lines) progression for {selectedMuscleGroup}</p>
       </div>
 
-      <div className="w-full h-96 bg-base-100 rounded-lg outline-none ring-0 border-none">
+      <div className="w-full h-96 bg-base-100 rounded-lg focus:outline-none focus:ring-0" style={{ outline: 'none', border: 'none', boxShadow: 'none' }}>
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={chartData} margin={{ top: 20, right: 80, left: 0, bottom: 5 }}>
+          <ComposedChart data={chartData} margin={{ top: 20, right: 80, left: 0, bottom: 5 }} style={{ outline: 'none', border: 'none' }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="date" tick={{ fontSize: 11 }} angle={-45} textAnchor="end" height={80} />
             <YAxis

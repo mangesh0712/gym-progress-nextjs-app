@@ -18,3 +18,15 @@
     --foreground: #ededed;
   }
 }
+
+/* Prevent focus/outline on chart containers */
+.recharts-wrapper {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.recharts-wrapper:focus,
+.recharts-wrapper:focus-visible {
+  outline: none !important;
+}
