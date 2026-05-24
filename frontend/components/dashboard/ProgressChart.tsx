@@ -84,12 +84,12 @@ export function ProgressChart({ sessions, selectedMuscleGroup }: ProgressChartPr
   const exerciseNames = Object.keys(exerciseMap);
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-4 user-select-none">
       <div className="text-sm text-gray-600">
         <p>📊 Weight (bars) & Reps (lines) progression for {selectedMuscleGroup}</p>
       </div>
 
-      <div className="w-full h-96 bg-base-100 rounded-lg">
+      <div className="w-full h-96 bg-base-100 rounded-lg outline-none ring-0 border-none">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={chartData} margin={{ top: 20, right: 80, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" />
