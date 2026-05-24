@@ -338,7 +338,7 @@ export default function WorkoutPage() {
               <div className="border-b border-gray-300 mb-6"></div>
 
               {/* Exercise Cards Grid - Scrollable Container */}
-              <div className="min-h-[500px] max-h-[530px] overflow-y-auto">
+              <div className="min-h-[250px] max-h-[300px] sm:min-h-[350px] sm:max-h-[400px] lg:min-h-[500px] lg:max-h-[530px] overflow-y-auto">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {availableExercises.map((exercise) => (
                     <ExerciseCard
@@ -359,7 +359,7 @@ export default function WorkoutPage() {
               <h3 className="text-base sm:text-lg font-bold text-hm-dark mb-3 sm:mb-4">Logged</h3>
 
               {/* Logged Exercises List - Scrollable Container */}
-              <div className="min-h-[500px] max-h-[530px] overflow-y-auto">
+              <div className="min-h-[250px] max-h-[300px] sm:min-h-[350px] sm:max-h-[400px] lg:min-h-[500px] lg:max-h-[530px] overflow-y-auto">
                 <div className="space-y-2 sm:space-y-3">
                   {loggedExercises.length === 0 ? (
                     <p className="text-xs sm:text-sm text-gray-600">
