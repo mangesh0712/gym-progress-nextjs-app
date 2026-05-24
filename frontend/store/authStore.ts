@@ -111,6 +111,8 @@ export const useAuthStore = create<AuthState>()(
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.isHydrated = true;
+          // Recompute isAuthenticated based on session after hydration
+          state.isAuthenticated = state.session !== null;
         }
       },
     }
