@@ -106,10 +106,17 @@ export function ProgressChart({ sessions, selectedMuscleGroup }: ProgressChartPr
               tick={{ fontSize: 11 }}
             />
             <Tooltip
+              contentStyle={{
+                backgroundColor: 'rgb(var(--color-base-200))',
+                border: '1px solid rgb(var(--color-base-300))',
+                borderRadius: '0.5rem',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.2)',
+                zIndex: 50,
+              }}
               content={({ active, payload }) => {
                 if (!active || !payload) return null;
                 return (
-                  <div className="bg-base-200 p-2 rounded border border-base-300 text-xs">
+                  <div className="bg-base-200 p-2 rounded border border-base-300 text-xs shadow-lg">
                     {payload.map((entry: any, idx: number) => {
                       const exerciseName = entry.name.replace(/_weight|_reps/, '');
                       const isWeight = entry.name.includes('_weight');
