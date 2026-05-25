@@ -36,7 +36,7 @@ export function BodyPartCard({ muscleGroup, sessions }: BodyPartCardProps) {
 
   // Build chart data with max weight per session per exercise
   const chartData = lastSessions.map(session => {
-    const data: Record<string, number> = {
+    const data: Record<string, string | number> = {
       date: new Date(session.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     };
 
