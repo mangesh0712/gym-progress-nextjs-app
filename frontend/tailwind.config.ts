@@ -15,6 +15,13 @@ const config = {
         success: '#10B981',
         'hm-light': '#F5F5F5',
         'hm-dark': '#1a1a1a',
+        'muscle-chest': '#eab308',
+        'muscle-back': '#1f2937',
+        'muscle-legs': '#ef4444',
+        'muscle-shoulders': '#8b5cf6',
+        'muscle-biceps': '#3b82f6',
+        'muscle-triceps': '#ec4899',
+        'muscle-abs': '#9ca3af',
       },
       backgroundColor: {
         base: '#FFFFFF',
