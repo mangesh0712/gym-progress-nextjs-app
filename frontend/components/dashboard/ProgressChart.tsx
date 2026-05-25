@@ -160,34 +160,6 @@ export function ProgressChart({ sessions, selectedMuscleGroup }: ProgressChartPr
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-
-      {/* Exercise Summary Table */}
-      <div className="space-y-2">
-        <h4 className="text-sm font-bold">Exercise Breakdown</h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {exerciseNames.map((exercise, idx) => {
-            const data = exerciseMap[exercise];
-            const latestEntry = data[data.length - 1];
-            const oldestEntry = data[0];
-            const maxWeight = Math.max(...data.map(d => d.weight));
-            const totalReps = data.reduce((sum, d) => sum + d.reps, 0);
-
-            return (
-              <div key={exercise} className="bg-base-200 p-3 rounded-lg text-sm">
-                <p className="font-semibold mb-1">{exercise}</p>
-                <div className="space-y-1 text-xs">
-                  <p>Max Weight: <span className="font-bold text-primary">{maxWeight}kg</span></p>
-                  <p>Total Reps: <span className="font-bold text-success">{totalReps}</span></p>
-                  <p>Latest: {latestEntry.weight}kg × {latestEntry.reps} reps</p>
-                  {data.length > 1 && (
-                    <p className="text-gray-600">Sessions: {data.length} sets logged</p>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
     </div>
   );
 }

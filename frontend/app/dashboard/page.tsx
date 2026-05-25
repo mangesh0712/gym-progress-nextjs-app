@@ -6,8 +6,9 @@ import { useAuthStore } from '@/store/authStore';
 import { fetchWorkoutHistory, logoutApi, WorkoutSession } from '@/lib/supabase';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
-import { ProgressChart } from '@/components/dashboard/ProgressChart';
-import { RecentSessions } from '@/components/dashboard/RecentSessions';
+// import { ConsistencyChart } from '@/components/dashboard/ConsistencyChart';
+import { SessionScorecard } from '@/components/dashboard/SessionScorecard';
+import { BodyPartCard } from '@/components/dashboard/BodyPartCard';
 
 const muscleGroupsList = ['Chest', 'Legs', 'Shoulders', 'Back', 'Biceps', 'Triceps', 'Abs'];
 
@@ -22,7 +23,6 @@ export default function DashboardPage() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [sessions, setSessions] = useState<WorkoutSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedMuscleGroup, setSelectedMuscleGroup] = useState('chest');
 
   useEffect(() => {
     if (isHydrated && !isAuthenticated) {
@@ -89,7 +89,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-base-100 flex flex-col pb-48">
+    <div className="min-h-screen bg-base-100 flex flex-col">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-md">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
@@ -140,46 +140,50 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Progress Chart - Main Focus */}
-          {isLoading ? (
+          {/* Consistency Chart - Commented Out */}
+          {/* {isLoading ? (
             <div className="card bg-base-200 shadow-md p-6 h-96 flex items-center justify-center">
               <span className="loading loading-spinner loading-lg text-primary"></span>
             </div>
           ) : (
             <div className="card bg-base-100 shadow-md p-4 md:p-6">
-              <h3 className="text-xl font-bold mb-2">Progress Tracking</h3>
-              <p className="text-sm text-gray-600 mb-6">
-                Track your strength progression with weight and rep tracking. Select a body part below to analyze your performance.
-              </p>
-              <ProgressChart sessions={sessions} selectedMuscleGroup={selectedMuscleGroup} />
+              <ConsistencyChart sessions={sessions} />
+            </div>
+          )} */}
+
+          {/* Session Scorecard */}
+          {isLoading ? (
+            <div className="card bg-base-200 shadow-md p-6 h-32 flex items-center justify-center">
+              <span className="loading loading-spinner loading-lg text-primary"></span>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <h3 className="text-xl font-bold text-hm-dark">Recent Sessions</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {muscleGroupsList.map((group) => (
+                  <SessionScorecard
+                    key={group}
+                    muscleGroup={group.toLowerCase()}
+                    sessions={sessions}
+                  />
+                ))}
+              </div>
             </div>
           )}
 
-          {/* Recent Sessions */}
-          <div className="card bg-base-100 shadow-md p-4 md:p-6">
-            <h3 className="text-xl font-bold mb-4">Recent Sessions</h3>
-            <RecentSessions sessions={sessions} />
+          {/* Body Part Progress Grid */}
+          <div>
+            <h3 className="text-xl font-bold text-hm-dark mb-4">Progress by Body Part</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {muscleGroupsList.map((group) => (
+                <BodyPartCard
+                  key={group}
+                  muscleGroup={group.toLowerCase()}
+                  sessions={sessions}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      </div>
-
-      {/* Sticky Bottom Muscle Group Selector */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-2xl z-40">
-        <div className="max-w-4xl mx-auto px-4 py-3">
-          <label className="label">
-            <span className="label-text font-semibold">Select Body Part for Analysis</span>
-          </label>
-          <select
-            value={selectedMuscleGroup}
-            onChange={(e) => setSelectedMuscleGroup(e.target.value)}
-            className="select select-bordered w-full"
-          >
-            {muscleGroupsList.map((group) => (
-              <option key={group} value={group.toLowerCase()}>
-                {group}
-              </option>
-            ))}
-          </select>
         </div>
       </div>
 
