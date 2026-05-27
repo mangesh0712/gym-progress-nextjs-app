@@ -224,3 +224,92 @@ export async function saveWorkoutSession(
 
   return response.json();
 }
+
+export interface WorkoutSession {
+  id: string;
+  muscle_group: string;
+  created_at: string;
+  workout_exercises: Array<{
+    exercise_name: string;
+    sets: Array<{ kg: string; reps: string }>;
+  }>;
+}
+
+export async function fetchWorkoutHistory(accessToken: string): Promise<WorkoutSession[]> {
+  if (!accessToken) throw new Error('No access token found');
+
+  const response = await fetch(`${API_URL}/workouts/sessions`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || 'Failed to fetch workout history');
+  }
+
+  return response.json();
+}
+
+export interface Exercise {
+  id: string;
+  name: string;
+  muscle_group: string;
+  created_at: string;
+}
+
+export async function fetchExercises(muscleGroup: string, accessToken: string): Promise<Exercise[]> {
+  if (!accessToken) throw new Error('No access token found');
+
+  const response = await fetch(`${API_URL}/exercises/${muscleGroup}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || 'Failed to fetch exercises');
+  }
+
+  return response.json();
+}
+
+export async function addExercise(name: string, muscleGroup: string, accessToken: string): Promise<Exercise> {
+  if (!accessToken) throw new Error('No access token found');
+
+  const response = await fetch(`${API_URL}/exercises/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ name, muscle_group: muscleGroup }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || 'Failed to add exercise');
+  }
+
+  return response.json();
+}
+
+export async function deleteExercise(exerciseId: string, accessToken: string): Promise<void> {
+  if (!accessToken) throw new Error('No access token found');
+
+  const response = await fetch(`${API_URL}/exercises/${exerciseId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || 'Failed to delete exercise');
+  }
+}

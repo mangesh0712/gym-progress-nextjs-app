@@ -3,17 +3,26 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
-import { logoutApi } from '@/lib/supabase';
+import { fetchWorkoutHistory, logoutApi, WorkoutSession } from '@/lib/supabase';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
+import { FrequencyChart } from '@/components/dashboard/FrequencyChart';
+import { ProgressChart } from '@/components/dashboard/ProgressChart';
+import { RecentSessions } from '@/components/dashboard/RecentSessions';
+
+const muscleGroupsList = ['Chest', 'Legs', 'Shoulders', 'Back', 'Biceps', 'Triceps', 'Abs'];
 
 export default function DashboardPage() {
   const router = useRouter();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const session = useAuthStore((state) => state.session);
   const logout = useAuthStore((state) => state.logout);
+
   const [showMuscleGroups, setShowMuscleGroups] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [sessions, setSessions] = useState<WorkoutSession[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedMuscleGroup, setSelectedMuscleGroup] = useState('chest');
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -21,7 +30,24 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, router]);
 
-  const muscleGroups = ['Legs', 'Shoulders', 'Chest', 'Back', 'Biceps', 'Triceps', 'Abs'];
+  useEffect(() => {
+    const loadSessions = async () => {
+      try {
+        if (session?.access_token) {
+          const data = await fetchWorkoutHistory(session.access_token);
+          setSessions(data);
+        }
+      } catch (error) {
+        console.error('Failed to load sessions:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (session?.access_token) {
+      loadSessions();
+    }
+  }, [session?.access_token]);
 
   const handleMuscleGroupClick = (group: string) => {
     router.push(`/workout/${group.toLowerCase()}`);
@@ -33,29 +59,23 @@ export default function DashboardPage() {
 
   const confirmLogout = async () => {
     try {
-      // Call logout API to blacklist the token
       if (session?.access_token) {
         await logoutApi(session.access_token);
       }
     } catch (error) {
       console.error('Logout API call failed:', error);
-      // Continue with client-side logout even if API fails
     } finally {
-      // Clear client-side state FIRST
       logout();
 
-      // Clear localStorage completely
       if (typeof window !== 'undefined') {
         localStorage.removeItem('gym-auth');
       }
 
-      // Clear the access_token cookie
       document.cookie = 'access_token=; path=/; max-age=0;';
       document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
 
       setShowLogoutConfirm(false);
 
-      // Redirect after a small delay to ensure cookies/localStorage are cleared
       setTimeout(() => {
         router.push('/login');
       }, 100);
@@ -67,16 +87,16 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-base-100 flex flex-col pb-32">
       {/* Header */}
-      <div className="bg-white border-b border-hm-light">
+      <div className="bg-base-100 border-b border-base-300 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-primary">💪 Gym Tracker</h1>
           <div className="flex items-center gap-4">
             <ThemeSwitcher />
             <button
               onClick={handleLogout}
-              className="text-primary hover:text-hm-dark dark:hover:text-gray-300 font-semibold transition-colors"
+              className="text-primary hover:text-primary-focus font-semibold transition-colors text-sm md:text-base"
             >
               Logout
             </button>
@@ -84,51 +104,76 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Main Content - 70/30 Layout */}
-      <div className="flex-1 p-4 md:p-8">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 h-full">
-          {/* Left side - 70% (3 columns out of 4) */}
-          <div className="lg:col-span-3">
-            <div className="bg-hm-light rounded-lg shadow-md p-8 h-full min-h-96">
-              <h2 className="text-2xl font-bold text-hm-dark mb-6">Your Progress</h2>
-              <div className="flex items-center justify-center h-full text-gray-600">
-                <div className="text-center">
-                  <p className="text-lg font-medium mb-2">📊 Graphs placeholder</p>
-                  <p className="text-sm">Progress charts and statistics will appear here</p>
-                </div>
+      {/* Main Content - Mobile First Single Column */}
+      <div className="flex-1 p-4 md:p-6">
+        <div className="max-w-2xl mx-auto space-y-6">
+          {/* Start Workout Card */}
+          <div className="card bg-base-200 shadow-md p-6">
+            <button
+              onClick={() => setShowMuscleGroups(!showMuscleGroups)}
+              className="btn btn-primary btn-lg w-full"
+            >
+              Start Your Workout
+            </button>
+
+            {showMuscleGroups && (
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {muscleGroupsList.map((group) => (
+                  <button
+                    key={group}
+                    onClick={() => handleMuscleGroupClick(group)}
+                    className="btn btn-outline btn-sm"
+                  >
+                    {group}
+                  </button>
+                ))}
               </div>
-            </div>
+            )}
           </div>
 
-          {/* Right side - 30% (1 column out of 4) */}
-          <div className="lg:col-span-1">
-            <div className="bg-hm-light rounded-lg shadow-md p-6 h-full flex flex-col">
-              <button
-                onClick={() => setShowMuscleGroups(!showMuscleGroups)}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#D84545')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#C41E3A')}
-                style={{ backgroundColor: '#C41E3A' }}
-                className="w-full text-white font-bold py-4 px-4 rounded-lg transition-all duration-200 mb-4 cursor-pointer"
-              >
-                Start Your Workout
-              </button>
-
-              {/* Muscle Group Buttons */}
-              {showMuscleGroups && (
-                <div className="flex flex-col gap-2 flex-1 overflow-y-auto">
-                  {muscleGroups.map((group) => (
-                    <button
-                      key={group}
-                      onClick={() => handleMuscleGroupClick(group)}
-                      className="w-full bg-white hover:bg-gray-100 text-hm-dark font-semibold py-3 px-4 rounded-lg transition-all duration-200 border border-gray-300 cursor-pointer"
-                    >
-                      {group}
-                    </button>
-                  ))}
-                </div>
-              )}
+          {/* Frequency Chart */}
+          {isLoading ? (
+            <div className="card bg-base-200 shadow-md p-6 h-80 flex items-center justify-center">
+              <span className="loading loading-spinner loading-lg text-primary"></span>
             </div>
+          ) : (
+            <div className="card bg-base-100 shadow-md p-4 md:p-6">
+              <h3 className="text-xl font-bold mb-4">Workout Frequency (Last 30 Days)</h3>
+              <FrequencyChart sessions={sessions} />
+            </div>
+          )}
+
+          {/* Progress Chart */}
+          <div className="card bg-base-100 shadow-md p-4 md:p-6">
+            <h3 className="text-xl font-bold mb-4">Progress Tracking</h3>
+            <ProgressChart sessions={sessions} selectedMuscleGroup={selectedMuscleGroup} />
           </div>
+
+          {/* Recent Sessions */}
+          <div className="card bg-base-100 shadow-md p-4 md:p-6">
+            <h3 className="text-xl font-bold mb-4">Recent Sessions</h3>
+            <RecentSessions sessions={sessions} />
+          </div>
+        </div>
+      </div>
+
+      {/* Sticky Bottom Muscle Group Selector */}
+      <div className="fixed bottom-0 left-0 right-0 bg-base-100 border-t border-base-300 shadow-2xl z-50">
+        <div className="max-w-2xl mx-auto px-4 py-3">
+          <label className="label">
+            <span className="label-text font-semibold">Select Body Part</span>
+          </label>
+          <select
+            value={selectedMuscleGroup}
+            onChange={(e) => setSelectedMuscleGroup(e.target.value)}
+            className="select select-bordered w-full"
+          >
+            {muscleGroupsList.map((group) => (
+              <option key={group} value={group.toLowerCase()}>
+                {group}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 

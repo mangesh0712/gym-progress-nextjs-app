@@ -7,8 +7,8 @@ import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { ExerciseCard } from '@/components/ExerciseCard';
 import { LogWorkoutModal } from '@/components/LogWorkoutModal';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
-import { getExercisesForMuscleGroup, formatMuscleGroupName } from '@/lib/exercises';
-import { saveWorkoutSession, isTokenExpired, refreshAccessToken } from '@/lib/supabase';
+import { formatMuscleGroupName, exercises as staticExercises } from '@/lib/exercises';
+import { saveWorkoutSession, isTokenExpired, refreshAccessToken, fetchExercises, Exercise } from '@/lib/supabase';
 
 interface LoggedEntry {
   id: string;
@@ -30,6 +30,8 @@ export default function WorkoutPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
   const [saveError, setSaveError] = useState('');
+  const [apiExercises, setApiExercises] = useState<Exercise[]>([]);
+  const [isLoadingExercises, setIsLoadingExercises] = useState(true);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -37,7 +39,45 @@ export default function WorkoutPage() {
     }
   }, [isAuthenticated, router]);
 
-  const exercises = getExercisesForMuscleGroup(muscleGroup);
+  useEffect(() => {
+    const loadExercises = async () => {
+      try {
+        if (session?.access_token) {
+          setIsLoadingExercises(true);
+          const data = await fetchExercises(muscleGroup, session.access_token);
+          setApiExercises(data);
+        }
+      } catch (error) {
+        console.error('Failed to load exercises from API:', error);
+        setApiExercises([]);
+      } finally {
+        setIsLoadingExercises(false);
+      }
+    };
+
+    if (session?.access_token) {
+      loadExercises();
+    }
+  }, [muscleGroup, session?.access_token]);
+
+  const getExercisesForDisplay = () => {
+    if (apiExercises.length > 0) {
+      return apiExercises.map(ex => ({
+        id: ex.id,
+        name: ex.name,
+        color: getColorForExercise(ex.name),
+      }));
+    }
+    return staticExercises[muscleGroup.toLowerCase()] || [];
+  };
+
+  const getColorForExercise = (exerciseName: string): string => {
+    const muscleGroupData = staticExercises[muscleGroup.toLowerCase()];
+    const staticExercise = muscleGroupData?.find(e => e.name === exerciseName);
+    return staticExercise?.color || 'from-gray-400 to-gray-600';
+  };
+
+  const exercises = getExercisesForDisplay();
   const displayName = formatMuscleGroupName(muscleGroup);
 
   const handleExerciseClick = (exerciseName: string) => {
