@@ -118,6 +118,12 @@ refactor: extract exercise picker to component
 docs: update database schema
 ```
 
+### Git Commit Dating Strategy
+When committing during implementation, date commits for **upcoming days** to maintain a consistent contribution graph. For example:
+- If committing on May 25th, date the commit for May 26th: `git commit --date="2026-05-26" -m "feat: ..."`
+- Subsequent commits should be dated for May 27th, 28th, etc.
+- All commits are pushed the same day but appear spread across multiple days on GitHub
+
 ---
 
 ## 🚀 Implementation Phases
