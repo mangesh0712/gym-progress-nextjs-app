@@ -6,7 +6,6 @@ import { useAuthStore } from '@/store/authStore';
 import { fetchWorkoutHistory, logoutApi, WorkoutSession } from '@/lib/supabase';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
-import { FrequencyChart } from '@/components/dashboard/FrequencyChart';
 import { ProgressChart } from '@/components/dashboard/ProgressChart';
 import { RecentSessions } from '@/components/dashboard/RecentSessions';
 
@@ -93,6 +92,12 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-primary">💪 Gym Tracker</h1>
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.push('/exercises')}
+              className="link link-primary text-sm md:text-base"
+            >
+              Manage Exercises
+            </button>
             <ThemeSwitcher />
             <button
               onClick={handleLogout}
@@ -106,7 +111,7 @@ export default function DashboardPage() {
 
       {/* Main Content - Mobile First Single Column */}
       <div className="flex-1 p-4 md:p-6">
-        <div className="max-w-2xl mx-auto space-y-6">
+        <div className="max-w-4xl mx-auto space-y-6">
           {/* Start Workout Card */}
           <div className="card bg-base-200 shadow-md p-6">
             <button
@@ -131,23 +136,20 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Frequency Chart */}
+          {/* Progress Chart - Main Focus */}
           {isLoading ? (
-            <div className="card bg-base-200 shadow-md p-6 h-80 flex items-center justify-center">
+            <div className="card bg-base-200 shadow-md p-6 h-96 flex items-center justify-center">
               <span className="loading loading-spinner loading-lg text-primary"></span>
             </div>
           ) : (
             <div className="card bg-base-100 shadow-md p-4 md:p-6">
-              <h3 className="text-xl font-bold mb-4">Workout Frequency (Last 30 Days)</h3>
-              <FrequencyChart sessions={sessions} />
+              <h3 className="text-xl font-bold mb-2">Progress Tracking</h3>
+              <p className="text-sm text-gray-600 mb-6">
+                Track your strength progression with weight and rep tracking. Select a body part below to analyze your performance.
+              </p>
+              <ProgressChart sessions={sessions} selectedMuscleGroup={selectedMuscleGroup} />
             </div>
           )}
-
-          {/* Progress Chart */}
-          <div className="card bg-base-100 shadow-md p-4 md:p-6">
-            <h3 className="text-xl font-bold mb-4">Progress Tracking</h3>
-            <ProgressChart sessions={sessions} selectedMuscleGroup={selectedMuscleGroup} />
-          </div>
 
           {/* Recent Sessions */}
           <div className="card bg-base-100 shadow-md p-4 md:p-6">
@@ -159,9 +161,9 @@ export default function DashboardPage() {
 
       {/* Sticky Bottom Muscle Group Selector */}
       <div className="fixed bottom-0 left-0 right-0 bg-base-100 border-t border-base-300 shadow-2xl z-50">
-        <div className="max-w-2xl mx-auto px-4 py-3">
+        <div className="max-w-4xl mx-auto px-4 py-3">
           <label className="label">
-            <span className="label-text font-semibold">Select Body Part</span>
+            <span className="label-text font-semibold">Select Body Part for Analysis</span>
           </label>
           <select
             value={selectedMuscleGroup}
